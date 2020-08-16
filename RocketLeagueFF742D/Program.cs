@@ -12,7 +12,7 @@ using WeScript.SDK.UI;
 using WeScript.SDK.UI.Components;
 using WeScript.SDK.Utils;
 
-namespace RocketLeague
+namespace RocketLeagueTest
 {
     class Program
     {
@@ -46,16 +46,16 @@ namespace RocketLeague
         }
 
 
-            public static void InitializeMenu()
-            {
-                VisualsMenu = new Menu("visualsmenu", "Visuals Menu")
+        public static void InitializeMenu()
+        {
+            VisualsMenu = new Menu("visualsmenu", "Visuals Menu")
             {
                 Components.VisualsComponent.DrawTheVisuals,
                 Components.VisualsComponent.DrawBoxThic.SetToolTip("Setting thickness to 0 will let the assembly auto-adjust itself depending on model distance"),
                 Components.VisualsComponent.DrawBoxBorder.SetToolTip("Drawing borders may take extra performance (FPS) on low-end computers"),
                 Components.VisualsComponent.DrawBox,
             };
-            
+
 
             RootMenu = new Menu("RocketLeague", "WeScript.app RocketLeague Assembly", true)
             {
@@ -67,7 +67,7 @@ namespace RocketLeague
         }
 
 
-            static void Main(string[] args)
+        static void Main(string[] args)
         {
             Console.WriteLine("WeScript.app RocketLeague Assembly By Poptart && GameHackerPM 1.0 Loaded!");
 
@@ -120,77 +120,77 @@ namespace RocketLeague
         }
         //Let's do a model for these functions..
 
-        private static float VectorDotProduct(Vector3 A, Vector3 B)
-        {
-            float Retn;
-            Retn = A.X * B.X + A.Y * B.Y + A.Z * B.Z;
-            return Retn;
-        }
-        private static Vector2 WorldToScreenUE3(FRotator rotation, float FOV, Vector3 playerPos, Vector3 targetVec)
-        {
+        //private static float VectorDotProduct(Vector3 A, Vector3 B)
+        //{
+        //    float Retn;
+        //    Retn = A.X * B.X + A.Y * B.Y + A.Z * B.Z;
+        //    return Retn;
+        //}
+        //private static Vector2 WorldToScreenUE3(FRotator rotation, float FOV, Vector3 playerPos, Vector3 targetVec)
+        //{
 
-            Vector2 output = new Vector2();
-            
-            Vector3 vAxisY = new Vector3();
-            Vector3 vAxisZ = new Vector3();
-            Vector3 vAxisX = new Vector3();
-            Vector3 Delta = new Vector3();
-            Vector3 Transformed = new Vector3();
+        //    Vector2 output = new Vector2();
 
-            FRotator rotationCopy = new FRotator
-            {
-                Pitch = rotation.Pitch,
-                Yaw = rotation.Yaw,
-                Roll = rotation.Roll
-            };
+        //    Vector3 vAxisY = new Vector3();
+        //    Vector3 vAxisZ = new Vector3();
+        //    Vector3 vAxisX = new Vector3();
+        //    Vector3 Delta = new Vector3();
+        //    Vector3 Transformed = new Vector3();
 
-            GetAxes(rotationCopy, ref  vAxisX, ref vAxisY, ref vAxisZ);
-        
-            Delta = targetVec - playerPos;
-            Transformed.X = VectorDotProduct(Delta, vAxisY);
-            Transformed.Y = VectorDotProduct(Delta, vAxisZ);
-            Transformed.Z = VectorDotProduct(Delta, vAxisX);
+        //    FRotator rotationCopy = new FRotator
+        //    {
+        //        Pitch = rotation.Pitch,
+        //        Yaw = rotation.Yaw,
+        //        Roll = rotation.Roll
+        //    };
 
-            if (Transformed.Z < 1.00f)
-                Transformed.Z = 1.00f;
+        //    GetAxes(rotationCopy, ref vAxisX, ref vAxisY, ref vAxisZ);
 
-            //float FOVAngle = PlayerCamera.LastCamFOV; //we have this already NP
+        //    Delta = targetVec - playerPos;
+        //    Transformed.X = VectorDotProduct(Delta, vAxisY);
+        //    Transformed.Y = VectorDotProduct(Delta, vAxisZ);
+        //    Transformed.Z = VectorDotProduct(Delta, vAxisX);
 
-            output.X = (float)((wndSize.X / 2.0f) + Transformed.X * ((wndSize.X / 2.0f) / Math.Tan(FOV * Math.PI / 360.0f)) / Transformed.Z);
-            output.Y = (float)((wndSize.Y / 2.0f) + -Transformed.Y * ((wndSize.X / 2.0f) / Math.Tan(FOV * Math.PI / 360.0f)) / Transformed.Z);
+        //    if (Transformed.Z < 1.00f)
+        //        Transformed.Z = 1.00f;
 
-            return output;
-        }
-        private static void GetAxes(FRotator r, ref Vector3 x, ref Vector3 y, ref Vector3 z)
-        {
-            Vector3 rVec = RotatorToVector(r);
-            rVec.Normalize();
-            x = rVec;
-            r.Yaw += 16384;
-            FRotator r2 = r;
-            r2.Pitch = 0;
-            rVec = RotatorToVector(r2);
-            rVec.Normalize();
-            y = rVec;
-            y.Z = 0.0f;
-            r.Yaw -= 16384;
-            r.Pitch += 16384;
-            rVec = RotatorToVector(r);
-            rVec.Normalize();
-            z = rVec;
-        }
-        public static Vector3 RotatorToVector(FRotator R)
-        {
-            float UROTTORAD = 0.00009587379924285f;//(int)Math.PI * 32768;
-            Vector3 Vec = new Vector3();
-            float fYaw = R.Yaw * UROTTORAD;
-            float fPitch = R.Pitch * UROTTORAD;
-            float CosPitch = (float)Math.Cos(fPitch);
-            Vec.X = (float)Math.Cos(fYaw) * CosPitch;
-            Vec.Y = (float)Math.Sin(fYaw) * CosPitch;
-            Vec.Z = (float)Math.Sin(fPitch);
-            return Vec;
-        }
+        //    //float FOVAngle = PlayerCamera.LastCamFOV; //we have this already NP
+
+        //    output.X = (float)((wndSize.X / 2.0f) + Transformed.X * ((wndSize.X / 2.0f) / Math.Tan(FOV * Math.PI / 360.0f)) / Transformed.Z);
+        //    output.Y = (float)((wndSize.Y / 2.0f) + -Transformed.Y * ((wndSize.X / 2.0f) / Math.Tan(FOV * Math.PI / 360.0f)) / Transformed.Z);
+
+        //    return output;
+        //}
+        //private static void GetAxes(FRotator r, ref Vector3 x, ref Vector3 y, ref Vector3 z)
+        //{
+        //    Vector3 rVec = RotatorToVector(r);
+        //    rVec.Normalize();
+        //    x = rVec;
+        //    r.Yaw += 16384;
+        //    FRotator r2 = r;
+        //    r2.Pitch = 0;
+        //    rVec = RotatorToVector(r2);
+        //    rVec.Normalize();
+        //    y = rVec;
+        //    y.Z = 0.0f;
+        //    r.Yaw -= 16384;
+        //    r.Pitch += 16384;
+        //    rVec = RotatorToVector(r);
+        //    rVec.Normalize();
+        //    z = rVec;
+        //}
+        //public static Vector3 RotatorToVector(FRotator R)
+        //{
+        //    float UROTTORAD = 0.00009587379924285f;//(int)Math.PI * 32768;
+        //    Vector3 Vec = new Vector3();
+        //    float fYaw = R.Yaw * UROTTORAD;
+        //    float fPitch = R.Pitch * UROTTORAD;
+        //    float CosPitch = (float)Math.Cos(fPitch);
+        //    Vec.X = (float)Math.Cos(fYaw) * CosPitch;
+        //    Vec.Y = (float)Math.Sin(fYaw) * CosPitch;
+        //    Vec.Z = (float)Math.Sin(fPitch);
+        //    return Vec;
+        //}
         public static List<long> BoostsObjects = new List<long>();
         private static Dictionary<long, DateTime> BoostsTimers = new Dictionary<long, DateTime>();
         private static void OnRenderer(int fps, EventArgs args)
@@ -223,7 +223,7 @@ namespace RocketLeague
 
             ////////////////////////////////Putting Boost things here!!///////////////////////////////////////////////////
 
-            
+
             var GameShare = Memory.ReadPointer(processHandle, (IntPtr)(WorldInfo.ToInt64() + 0x0AF0), isWow64Process);
 
             var BoostA = Memory.ReadPointer(processHandle, (IntPtr)(GameShare.ToInt64() + 0x0078), isWow64Process); // This is the Pill Array 6 pointers == 6 Pills
@@ -257,7 +257,7 @@ namespace RocketLeague
 
             ///////////////////////////////////////////////// LOCATION ROTATION FOV ////////////////////////////////////////////////////////////////
 
-            
+
 
             var rotator = new FRotator
             {
@@ -271,7 +271,7 @@ namespace RocketLeague
 
             /////////////////////////////////////////////// WORLD TO SCREEN ///////////////////////////////////////////////////////////////////////////////////////////
 
-            
+
 
             var Pills = new[] { Pill1, Pill2, Pill3, Pill4, Pill5, Pill6 };
             var BoostsArray = Memory.ReadPointer(processHandle, (IntPtr)(GameShare.ToInt64() + 0x0078), isWow64Process);
@@ -288,13 +288,13 @@ namespace RocketLeague
                 var currentBoost = Memory.ReadPointer(processHandle, (IntPtr)BoostsArray.ToInt64() + (r * 0x8), isWow64Process);
 
                 var boostPos = Memory.ReadVector3(processHandle, (IntPtr)currentBoost.ToInt64() + 0x0090);
-                var PillVecOnScreen = WorldToScreenUE3(rotator, LastCamFov, Location, boostPos);
+                //var PillVecOnScreen = WorldToScreenUE3(rotator, LastCamFov, Location, boostPos);
 
                 string nameOrTime = "Pill" + (r + 1);
 
                 if (!BoostsObjects.Contains(currentBoost.ToInt64()))
                     BoostsObjects.Add(currentBoost.ToInt64());
-                
+
 
                 //Renderer.DrawText(nameOrTime, PillVecOnScreen, Color.DeepSkyBlue, 35, TextAlignment.centered, true);
 
@@ -305,7 +305,7 @@ namespace RocketLeague
             foreach (long objectPtr in BoostsObjects)
             {
                 var isPicked = Memory.ReadBool(processHandle, (IntPtr)objectPtr + 0x02B8);
-                
+
                 if (isPicked)
                 {
                     if (!BoostsTimers.ContainsKey(objectPtr))
@@ -313,7 +313,7 @@ namespace RocketLeague
                 }
             }
 
-            foreach (var boostTimer in BoostsTimers.ToDictionary(x => x.Key, y=> y.Value))
+            foreach (var boostTimer in BoostsTimers.ToDictionary(x => x.Key, y => y.Value))
             {
                 var boostPos = Memory.ReadVector3(processHandle, (IntPtr)boostTimer.Key + 0x0090);
                 var timeLeft = (boostTimer.Value - DateTime.Now).TotalMilliseconds / 1000;
@@ -324,8 +324,13 @@ namespace RocketLeague
                     BoostsObjects.Remove(boostTimer.Key);
                     continue;
                 }
-                var PillVecOnScreen = WorldToScreenUE3(rotator, LastCamFov, Location, boostPos);
-                Renderer.DrawText(timeLeftStr, PillVecOnScreen, Color.DeepSkyBlue, 35, TextAlignment.centered, true);
+                //var PillVecOnScreen = WorldToScreenUE3(rotator, LastCamFov, Location, boostPos);
+                Vector2 PillVecOnScreen = new Vector2(0, 0);
+                if (Renderer.WorldToScreenUE3(boostPos, out PillVecOnScreen, Location, rotator.Pitch, rotator.Yaw, rotator.Roll, LastCamFov, wndMargins, wndSize))
+                {
+                    Renderer.DrawText(timeLeftStr, PillVecOnScreen, Color.DeepSkyBlue, 35, TextAlignment.centered, true);
+                }
+
             }
 
             //var foundVec = WorldToScreenUE3(rotator, LastCamFov, Location, new Vector3(x: -1771, y: -821, z: 63)); //Just dummy Vector so see on world..
