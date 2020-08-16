@@ -12,7 +12,7 @@ using WeScript.SDK.UI;
 using WeScript.SDK.UI.Components;
 using WeScript.SDK.Utils;
 
-namespace RocketLeagueTest
+namespace RocketLeague
 {
     class Program
     {
@@ -38,10 +38,8 @@ namespace RocketLeagueTest
             public static class VisualsComponent
             {
                 public static readonly MenuBool DrawTheVisuals = new MenuBool("drawthevisuals", "Enable all of the Visuals", true);
-                public static readonly MenuBool DrawBox = new MenuBool("drawbox", "Draw Box ESP", true);
-                public static readonly MenuSlider DrawBoxThic = new MenuSlider("boxthickness", "Draw Box Thickness", 0, 0, 10);
-                public static readonly MenuBool DrawBoxBorder = new MenuBool("drawboxborder", "Draw Border around Box and Text?", true);
-                public static readonly MenuBool DrawBoxHP = new MenuBool("drawboxhp", "Draw Health", true);
+                public static readonly MenuBool DrawBoostTimer = new MenuBool("drawtext", "Draw Boost Timer", true);
+                
             }
         }
 
@@ -51,9 +49,8 @@ namespace RocketLeagueTest
             VisualsMenu = new Menu("visualsmenu", "Visuals Menu")
             {
                 Components.VisualsComponent.DrawTheVisuals,
-                Components.VisualsComponent.DrawBoxThic.SetToolTip("Setting thickness to 0 will let the assembly auto-adjust itself depending on model distance"),
-                Components.VisualsComponent.DrawBoxBorder.SetToolTip("Drawing borders may take extra performance (FPS) on low-end computers"),
-                Components.VisualsComponent.DrawBox,
+                
+                Components.VisualsComponent.DrawBoostTimer,
             };
 
 
@@ -61,7 +58,7 @@ namespace RocketLeagueTest
             {
                 Components.MainAssemblyToggle.SetToolTip("The magical boolean which completely disables/enables the assembly!"),
                 VisualsMenu,
-                Components.VisualsComponent.DrawBox,
+                Components.VisualsComponent.DrawBoostTimer,
             };
             RootMenu.Attach();
         }
@@ -118,79 +115,7 @@ namespace RocketLeagueTest
                 }
             }
         }
-        //Let's do a model for these functions..
-
-        //private static float VectorDotProduct(Vector3 A, Vector3 B)
-        //{
-        //    float Retn;
-        //    Retn = A.X * B.X + A.Y * B.Y + A.Z * B.Z;
-        //    return Retn;
-        //}
-        //private static Vector2 WorldToScreenUE3(FRotator rotation, float FOV, Vector3 playerPos, Vector3 targetVec)
-        //{
-
-        //    Vector2 output = new Vector2();
-
-        //    Vector3 vAxisY = new Vector3();
-        //    Vector3 vAxisZ = new Vector3();
-        //    Vector3 vAxisX = new Vector3();
-        //    Vector3 Delta = new Vector3();
-        //    Vector3 Transformed = new Vector3();
-
-        //    FRotator rotationCopy = new FRotator
-        //    {
-        //        Pitch = rotation.Pitch,
-        //        Yaw = rotation.Yaw,
-        //        Roll = rotation.Roll
-        //    };
-
-        //    GetAxes(rotationCopy, ref vAxisX, ref vAxisY, ref vAxisZ);
-
-        //    Delta = targetVec - playerPos;
-        //    Transformed.X = VectorDotProduct(Delta, vAxisY);
-        //    Transformed.Y = VectorDotProduct(Delta, vAxisZ);
-        //    Transformed.Z = VectorDotProduct(Delta, vAxisX);
-
-        //    if (Transformed.Z < 1.00f)
-        //        Transformed.Z = 1.00f;
-
-        //    //float FOVAngle = PlayerCamera.LastCamFOV; //we have this already NP
-
-        //    output.X = (float)((wndSize.X / 2.0f) + Transformed.X * ((wndSize.X / 2.0f) / Math.Tan(FOV * Math.PI / 360.0f)) / Transformed.Z);
-        //    output.Y = (float)((wndSize.Y / 2.0f) + -Transformed.Y * ((wndSize.X / 2.0f) / Math.Tan(FOV * Math.PI / 360.0f)) / Transformed.Z);
-
-        //    return output;
-        //}
-        //private static void GetAxes(FRotator r, ref Vector3 x, ref Vector3 y, ref Vector3 z)
-        //{
-        //    Vector3 rVec = RotatorToVector(r);
-        //    rVec.Normalize();
-        //    x = rVec;
-        //    r.Yaw += 16384;
-        //    FRotator r2 = r;
-        //    r2.Pitch = 0;
-        //    rVec = RotatorToVector(r2);
-        //    rVec.Normalize();
-        //    y = rVec;
-        //    y.Z = 0.0f;
-        //    r.Yaw -= 16384;
-        //    r.Pitch += 16384;
-        //    rVec = RotatorToVector(r);
-        //    rVec.Normalize();
-        //    z = rVec;
-        //}
-        //public static Vector3 RotatorToVector(FRotator R)
-        //{
-        //    float UROTTORAD = 0.00009587379924285f;//(int)Math.PI * 32768;
-        //    Vector3 Vec = new Vector3();
-        //    float fYaw = R.Yaw * UROTTORAD;
-        //    float fPitch = R.Pitch * UROTTORAD;
-        //    float CosPitch = (float)Math.Cos(fPitch);
-        //    Vec.X = (float)Math.Cos(fYaw) * CosPitch;
-        //    Vec.Y = (float)Math.Sin(fYaw) * CosPitch;
-        //    Vec.Z = (float)Math.Sin(fPitch);
-        //    return Vec;
-        //}
+        
         public static List<long> BoostsObjects = new List<long>();
         private static Dictionary<long, DateTime> BoostsTimers = new Dictionary<long, DateTime>();
         private static void OnRenderer(int fps, EventArgs args)
@@ -206,14 +131,11 @@ namespace RocketLeagueTest
             var LocalPlayer = Memory.ReadPointer(processHandle, (IntPtr)LocalPlayersArray.ToInt64(), isWow64Process); //So here we have Base + the offset
             var PlayerController = Memory.ReadPointer(processHandle, (IntPtr)LocalPlayer.ToInt64() + 0x0078, isWow64Process);
             var WorldInfo = Memory.ReadPointer(processHandle, (IntPtr)PlayerController.ToInt64() + 0x0130, isWow64Process);
-            //var LocalPlayer = Memory.ReadPointer(processHandle, (IntPtr)(GameBase.ToInt64() + 0x02306658), isWow64Process);
-            //RocketLeague.exe+230E658
-            //So we got localplayer.. we wanna reach camera (to use the functions that we Boost from c++ after converting them)
-            //So now what we need?
+            
 
             var PlayerCamera = Memory.ReadPointer(processHandle, (IntPtr)(PlayerController.ToInt64() + 0x0480), isWow64Process);
 
-            //So we reached player camera .. let's get Location / LastCamFOV / Rotation
+            
 
             var Location = Memory.ReadVector3(processHandle, (IntPtr)PlayerCamera.ToInt64() + 0x0090);
             var LastCamFov = Memory.ReadFloat(processHandle, (IntPtr)PlayerCamera.ToInt64() + 0x0278);
@@ -246,7 +168,7 @@ namespace RocketLeagueTest
             var Boost6 = Memory.ReadPointer(processHandle, (IntPtr)(BoostA.ToInt64() + 0x0028), isWow64Process);
             var Pill6 = Memory.ReadVector3(processHandle, (IntPtr)Boost6.ToInt64() + 0x0090);
 
-            //var Boost = Memory.ReadInt32(processHandle, (IntPtr)GameShare.ToInt64() + 0x0080);
+            
 
             /////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -278,17 +200,11 @@ namespace RocketLeagueTest
             var BoostsArrayCnt = Memory.ReadInt32(processHandle, (IntPtr)(GameShare.ToInt64() + 0x0080)); //Always 6 Should be.
             for (int r = 0; r < BoostsArrayCnt; r++)
             {
-                //var curPill = Pills[r];
-                //var PillVec1 = WorldToScreenUE3(rotator, LastCamFov, Location, curPill);
-                //Renderer.DrawText("Pill", PillVec1, Color.DeepSkyBlue, 35, TextAlignment.centered, true);
-
-                //Console.WriteLine(r);
-
-                // This is the Pill Array 6 pointers == 6 Pills
+                
                 var currentBoost = Memory.ReadPointer(processHandle, (IntPtr)BoostsArray.ToInt64() + (r * 0x8), isWow64Process);
 
                 var boostPos = Memory.ReadVector3(processHandle, (IntPtr)currentBoost.ToInt64() + 0x0090);
-                //var PillVecOnScreen = WorldToScreenUE3(rotator, LastCamFov, Location, boostPos);
+               
 
                 string nameOrTime = "Pill" + (r + 1);
 
@@ -296,10 +212,7 @@ namespace RocketLeagueTest
                     BoostsObjects.Add(currentBoost.ToInt64());
 
 
-                //Renderer.DrawText(nameOrTime, PillVecOnScreen, Color.DeepSkyBlue, 35, TextAlignment.centered, true);
-
-                //var Boost1 = Memory.ReadPointer(processHandle, (IntPtr)(BoostA.ToInt64() + 0x0000), isWow64Process);
-                //var Pill1 = Memory.ReadVector3(processHandle, (IntPtr)Boost1.ToInt64() + 0x0090);
+                
             }
 
             foreach (long objectPtr in BoostsObjects)
@@ -324,63 +237,20 @@ namespace RocketLeagueTest
                     BoostsObjects.Remove(boostTimer.Key);
                     continue;
                 }
-                //var PillVecOnScreen = WorldToScreenUE3(rotator, LastCamFov, Location, boostPos);
+                
+
+
+
                 Vector2 PillVecOnScreen = new Vector2(0, 0);
                 if (Renderer.WorldToScreenUE3(boostPos, out PillVecOnScreen, Location, rotator.Pitch, rotator.Yaw, rotator.Roll, LastCamFov, wndMargins, wndSize))
-                {
-                    Renderer.DrawText(timeLeftStr, PillVecOnScreen, Color.DeepSkyBlue, 35, TextAlignment.centered, true);
+                    if (Components.VisualsComponent.DrawBoostTimer.Enabled)
+                    {
+                    Renderer.DrawText(timeLeftStr, PillVecOnScreen, Color.DarkOrange, 35, TextAlignment.centered, true);
                 }
 
             }
 
-            //var foundVec = WorldToScreenUE3(rotator, LastCamFov, Location, new Vector3(x: -1771, y: -821, z: 63)); //Just dummy Vector so see on world..
-
-            //var foundVec2 = WorldToScreenUE3(rotator, LastCamFov, Location, new Vector3(x: -1500, y: -821, z: 63));
-            //if (foundVec.X > 0 && foundVec.Y > 0)
-            //    if (foundVec2.X > 0 && foundVec2.Y > 0)
-            //        Renderer.DrawText("ONWORLDSO 111 ", foundVec, Color.DeepSkyBlue, 50, TextAlignment.centered, true);
-            //Renderer.DrawText("ONWORL 2222", foundVec2, Color.DeepSkyBlue, 50, TextAlignment.centered, true);
-
-
-
-            //var BoostVec1 = WorldToScreenUE3(rotator, LastCamFov, Location, Pill1);
-            //{
-            //    if (BoostVec1.X > 0 && BoostVec1.Y > 0)
-            //        Renderer.DrawText("1", BoostVec1, Color.DeepSkyBlue, 50, TextAlignment.centered, true);      //does not stay in same spot. moves to dif boost target????????????????????
-            //}
-
-
-            //var BoostVec2 = WorldToScreenUE3(rotator, LastCamFov, Location, Pill2);
-            //{
-            //    if (BoostVec2.X > 0 && BoostVec2.Y > 0)
-            //        Renderer.DrawText("2", BoostVec2, Color.DeepSkyBlue, 50, TextAlignment.centered, true);     //does not stay in same spot. moves to dif boost target????????????????????
-            //}
-
-            //var BoostVec3 = WorldToScreenUE3(rotator, LastCamFov, Location, Pill3);
-            //{
-            //    if (BoostVec3.X > 0 && BoostVec3.Y > 0)
-            //        Renderer.DrawText("3", BoostVec3, Color.DeepSkyBlue, 50, TextAlignment.centered, true);    //does not stay in same spot. moves to dif boost target????????????????????
-            //}
-
-            //var BoostVec4 = WorldToScreenUE3(rotator, LastCamFov, Location, Pill4);
-            //{
-            //    if (BoostVec4.X > 0 && BoostVec4.Y > 0)
-            //        Renderer.DrawText("4", BoostVec4, Color.DeepSkyBlue, 50, TextAlignment.centered, true);   //does not stay in same spot. moves to dif boost target????????????????????
-            //}
-
-            //var BoostVec5 = WorldToScreenUE3(rotator, LastCamFov, Location, Pill5);
-            //{
-            //    if (BoostVec5.X > 0 && BoostVec5.Y > 0)
-            //        Renderer.DrawText("5", BoostVec5, Color.DeepSkyBlue, 50, TextAlignment.centered, true); // does not stay in same spot. moves between 2 dif locations upon removal
-            //}
-
-            //var BoostVec6 = WorldToScreenUE3(rotator, LastCamFov, Location, Pill6);
-            //{
-            //    if (BoostVec6.X > 0 && BoostVec6.Y > 0)
-            //        Renderer.DrawText("6", BoostVec6, Color.DeepSkyBlue, 50, TextAlignment.centered, true);   //Stays in same place as it should.... Let's see why xD
-            //}
-
-            /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+            
 
         }
 
