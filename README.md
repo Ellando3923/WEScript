@@ -2,4 +2,4 @@
 
 Join the Discord <3 
 
-https://discord.gg/GMxzDmU
+https://discord.gg/FHKtjGz
