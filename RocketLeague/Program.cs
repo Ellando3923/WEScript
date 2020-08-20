@@ -38,8 +38,18 @@ namespace RocketLeague
             public static class VisualsComponent
             {
                 public static readonly MenuBool DrawTheVisuals = new MenuBool("drawthevisuals", "Enable all of the Visuals", true);
+
                 public static readonly MenuBool DrawBoostTimer = new MenuBool("drawtext", "Draw Boost Timer", true);
-                
+
+                public static readonly MenuBool DrawBallESP = new MenuBool("drawballesp", "Draw BALL ESP", true);
+
+                public static readonly MenuBool TeamGoalESP = new MenuBool("teamesp", "Draw TeamGoal ESP", true);
+
+                public static readonly MenuBool EnemyGoalESP = new MenuBool("enemygoalesp", "Draw EnemyGoal ESP", true);
+
+                public static readonly MenuBool BallToGoalESP = new MenuBool("balltogoalesp", "Draw Ball2Goal ESP", true);
+
+
             }
         }
 
@@ -49,16 +59,26 @@ namespace RocketLeague
             VisualsMenu = new Menu("visualsmenu", "Visuals Menu")
             {
                 Components.VisualsComponent.DrawTheVisuals,
-                
+
                 Components.VisualsComponent.DrawBoostTimer,
+
+                Components.VisualsComponent.DrawBallESP,
+
+                Components.VisualsComponent.TeamGoalESP,
+
+                Components.VisualsComponent.EnemyGoalESP,
+
+                Components.VisualsComponent.BallToGoalESP,
+
+
             };
 
 
             RootMenu = new Menu("RocketLeague", "WeScript.app RocketLeague Assembly", true)
             {
-                Components.MainAssemblyToggle.SetToolTip("The magical boolean which completely disables/enables the assembly!"),
+                //Components.MainAssemblyToggle.SetToolTip("The magical boolean which completely disables/enables the assembly!"),
                 VisualsMenu,
-                Components.VisualsComponent.DrawBoostTimer,
+                
             };
             RootMenu.Attach();
         }
@@ -131,17 +151,67 @@ namespace RocketLeague
             var LocalPlayer = Memory.ReadPointer(processHandle, (IntPtr)LocalPlayersArray.ToInt64(), isWow64Process); //So here we have Base + the offset
             var PlayerController = Memory.ReadPointer(processHandle, (IntPtr)LocalPlayer.ToInt64() + 0x0078, isWow64Process);
             var WorldInfo = Memory.ReadPointer(processHandle, (IntPtr)PlayerController.ToInt64() + 0x0130, isWow64Process);
-            
+            var WorldGravityZ = Memory.ReadFloat(processHandle, (IntPtr)WorldInfo.ToInt64() + 0x061C);
+            var DefaultGravityZ = Memory.ReadFloat(processHandle, (IntPtr)WorldInfo.ToInt64() + 0x0620);
+            var GlobalGravityZ = Memory.ReadFloat(processHandle, (IntPtr)WorldInfo.ToInt64() + 0x0624);
+
+            //Console.WriteLine(WorldGravityZ + "D" +  DefaultGravityZ + "G" +  GlobalGravityZ);
+
+
+            ///////////////////////////////////////////NEW UPDATE INFO///////////////////////////////////////////////////////////////////////
+
+            var AController = Memory.ReadPointer(processHandle, (IntPtr)WorldInfo.ToInt64() + 0x0640, isWow64Process);
+            var APawn = Memory.ReadPointer(processHandle, (IntPtr)AController.ToInt64() + 0x0280, isWow64Process);
+            var APlayerReplicationInfo = Memory.ReadPointer(processHandle, (IntPtr)AController.ToInt64() + 0x0288, isWow64Process);
+            var ATeamInfo = Memory.ReadPointer(processHandle, (IntPtr)APlayerReplicationInfo.ToInt64() + 0x02B0, isWow64Process);
+
+            var ScoreNum = Memory.ReadInt32(processHandle, (IntPtr)ATeamInfo.ToInt64() + 0x027C);
+
+            //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 
             var PlayerCamera = Memory.ReadPointer(processHandle, (IntPtr)(PlayerController.ToInt64() + 0x0480), isWow64Process);
 
-            
+
 
             var Location = Memory.ReadVector3(processHandle, (IntPtr)PlayerCamera.ToInt64() + 0x0090);
             var LastCamFov = Memory.ReadFloat(processHandle, (IntPtr)PlayerCamera.ToInt64() + 0x0278);
             var Pitch = Memory.ReadInt32(processHandle, (IntPtr)PlayerCamera.ToInt64() + 0x009C);
             var Yaw = Memory.ReadInt32(processHandle, (IntPtr)PlayerCamera.ToInt64() + 0x009C + 0x04);
             var Roll = Memory.ReadInt32(processHandle, (IntPtr)PlayerCamera.ToInt64() + 0x009C + 0x08);
+
+
+
+
+            ////////////////////////////////////////BALL INFO//////////////////////////////////////////////////////////////
+            //var GameEvent = Memory.ReadPointer(processHandle, (IntPtr)GameBase.ToInt64() + 0x0000ECF9, isWow64Process);
+            var GameEvent = Memory.ReadPointer(processHandle, (IntPtr)GameBase.ToInt64() + 0x022E8FF0, isWow64Process);
+           
+
+            var GameBalls = Memory.ReadPointer(processHandle, (IntPtr)GameEvent.ToInt64() + 0x0840, isWow64Process);
+            var Ball = Memory.ReadPointer(processHandle, (IntPtr)GameBalls.ToInt64() + 0x0000, isWow64Process);
+            var BallLocation = Memory.ReadVector3(processHandle, (IntPtr)Ball.ToInt64() + 0x0090);
+            var BallPredictionTime = Memory.ReadFloat(processHandle, (IntPtr)Ball.ToInt64() + 0x08F0);
+            var BallOldLocation = Memory.ReadVector3(processHandle, (IntPtr)Ball.ToInt64() + 0x08C4);
+            
+           
+
+            //Console.WriteLine(BallPredictionLocation);
+            ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+            ////////////////////////////////GOAL STUFF HERE/////////////////////////////////////////////////////////////////////
+            var UGoal = Memory.ReadPointer(processHandle, (IntPtr)GameEvent.ToInt64() + 0x0860, isWow64Process);
+            var TeamGoal = Memory.ReadPointer(processHandle, (IntPtr)UGoal.ToInt64() + 0x0000, isWow64Process);
+            var TeamGoalLocation = Memory.ReadVector3(processHandle, (IntPtr)TeamGoal.ToInt64() + 0x0120);
+            var TeamGoalLocationWorldCenter = Memory.ReadVector3(processHandle, (IntPtr)TeamGoal.ToInt64() + 0x0168);
+            var EnemyGoal = Memory.ReadPointer(processHandle, (IntPtr)UGoal.ToInt64() + 0x0008, isWow64Process);
+            var EnemyGoalLocation = Memory.ReadVector3(processHandle, (IntPtr)EnemyGoal.ToInt64() + 0x0120);
+
+            //Console.WriteLine(BallOldLocation);
+
+
+
+
 
             ////////////////////////////////Putting Boost things here!!///////////////////////////////////////////////////
 
@@ -170,6 +240,8 @@ namespace RocketLeague
 
             
 
+
+
             /////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
@@ -195,16 +267,63 @@ namespace RocketLeague
 
 
 
+            
+
+
+            
+            Vector2 BallESP = new Vector2(0, 0);
+            if (Renderer.WorldToScreenUE3(BallLocation, out BallESP, Location, rotator.Pitch, rotator.Yaw, rotator.Roll, LastCamFov, wndMargins, wndSize))
+                if (Components.VisualsComponent.DrawBallESP.Enabled)
+                {
+                    //Renderer.DrawLine(Ball2, screenPos, Color.AliceBlue );
+                Renderer.DrawCircleFilled(BallESP, 10, Color.Red, 10);
+
+            }
+
+
+            Vector2 GoalTeamESP = new Vector2(0, 0);
+            if (Renderer.WorldToScreenUE3(TeamGoalLocation, out GoalTeamESP, Location, rotator.Pitch, rotator.Yaw, rotator.Roll, LastCamFov, wndMargins, wndSize))
+                if (Components.VisualsComponent.TeamGoalESP.Enabled)
+                {
+                    //Renderer.DrawLine(Ball2, screenPos, Color.AliceBlue );
+                    Renderer.DrawText("TEAM",GoalTeamESP, Color.Azure, 20);
+
+                }
+
+            Vector2 GoalEnemyESP = new Vector2(0, 0);
+            if (Renderer.WorldToScreenUE3(EnemyGoalLocation, out GoalEnemyESP, Location, rotator.Pitch, rotator.Yaw, rotator.Roll, LastCamFov, wndMargins, wndSize))
+                if (Components.VisualsComponent.EnemyGoalESP.Enabled)
+                {
+                    //Renderer.DrawLine(Ball2, screenPos, Color.AliceBlue );
+                    Renderer.DrawText("ENEMY",GoalEnemyESP, Color.Azure, 20);
+
+                }
+
+
+            Vector2 Goal2 = new Vector2(0, 0);
+            if (Renderer.WorldToScreenUE3(EnemyGoalLocation, out GoalEnemyESP, Location, rotator.Pitch, rotator.Yaw, rotator.Roll, LastCamFov, wndMargins, wndSize))
+                if (Components.VisualsComponent.BallToGoalESP.Enabled)
+                {
+                    Renderer.DrawLine(BallESP, GoalEnemyESP, Color.Aquamarine, 2.654654654f);
+                    //Renderer.DrawCircle(Goal1, 25, 8, Color.Red);
+
+                }
+
+
+
+
+
+
             var Pills = new[] { Pill1, Pill2, Pill3, Pill4, Pill5, Pill6 };
             var BoostsArray = Memory.ReadPointer(processHandle, (IntPtr)(GameShare.ToInt64() + 0x0078), isWow64Process);
             var BoostsArrayCnt = Memory.ReadInt32(processHandle, (IntPtr)(GameShare.ToInt64() + 0x0080)); //Always 6 Should be.
             for (int r = 0; r < BoostsArrayCnt; r++)
             {
-                
+
                 var currentBoost = Memory.ReadPointer(processHandle, (IntPtr)BoostsArray.ToInt64() + (r * 0x8), isWow64Process);
 
                 var boostPos = Memory.ReadVector3(processHandle, (IntPtr)currentBoost.ToInt64() + 0x0090);
-               
+
 
                 string nameOrTime = "Pill" + (r + 1);
 
@@ -212,8 +331,12 @@ namespace RocketLeague
                     BoostsObjects.Add(currentBoost.ToInt64());
 
 
-                
+
             }
+
+
+
+
 
             foreach (long objectPtr in BoostsObjects)
             {
@@ -237,7 +360,7 @@ namespace RocketLeague
                     BoostsObjects.Remove(boostTimer.Key);
                     continue;
                 }
-                
+
 
 
 
@@ -245,12 +368,16 @@ namespace RocketLeague
                 if (Renderer.WorldToScreenUE3(boostPos, out PillVecOnScreen, Location, rotator.Pitch, rotator.Yaw, rotator.Roll, LastCamFov, wndMargins, wndSize))
                     if (Components.VisualsComponent.DrawBoostTimer.Enabled)
                     {
-                    Renderer.DrawText(timeLeftStr, PillVecOnScreen, Color.DarkOrange, 35, TextAlignment.centered, true);
-                }
+                        Renderer.DrawText(timeLeftStr, PillVecOnScreen, Color.DarkOrange, 35, TextAlignment.centered, true);
+
+
+
+                    }
+
 
             }
 
-            
+
 
         }
 
