@@ -106,7 +106,7 @@ namespace RocketLeague
         static void Main(string[] args)
         {
             Console.WriteLine("WeScript.app RocketLeague Assembly By Poptart && GameHackerPM 0.1.3 BETA Loaded!");
-            bool returnedbool1 = WeScript.SDK.Utils.VIP.IsTopicContentUnlocked("/191-rocket-league-beta-v012/");
+            bool returnedbool1 = WeScript.SDK.Utils.VIP.IsTopicContentUnlocked("/191-rocket-league-beta-v014/");
 
             if(returnedbool1 == true)
             {
