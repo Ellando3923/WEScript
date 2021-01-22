@@ -33,6 +33,7 @@ namespace DeadByDaylight
         public static Vector3 FMinimalViewInfo_Location = new Vector3(0, 0, 0);
         public static Vector3 FMinimalViewInfo_Rotation = new Vector3(0, 0, 0);
         public static float FMinimalViewInfo_FOV = 0;
+        //public static float Score = 0;
 
         public static uint survivorID = 0;
         public static uint killerID = 0;
@@ -48,6 +49,7 @@ namespace DeadByDaylight
         public static uint Hook = 0;
         public static uint MedKit = 0;
         public static uint ToolBox = 0;
+        
 
 
         public static Menu RootMenu { get; private set; }
@@ -115,7 +117,7 @@ namespace DeadByDaylight
             };
 
 
-            RootMenu = new Menu("dbdexample", "DeadByDaylight -- Poptart", true)
+            RootMenu = new Menu("dbdexample", "WeScript.app DeadByDaylight Example Assembly", true)
             {
                 Components.MainAssemblyToggle.SetToolTip("The magical boolean which completely disables/enables the assembly!"),
                 VisualsMenu,
@@ -156,7 +158,7 @@ namespace DeadByDaylight
 
         static void Main(string[] args)
         {
-            Console.WriteLine("DeadByDaylight By Poptart/\Collab with GH and Feretorix");
+            Console.WriteLine("WeScript.app experimental DBD assembly for patch 4.0.2 with Driver bypass");
             InitializeMenu();
             if (!Memory.InitDriver(DriverName.nsiproxy))
             {
@@ -259,7 +261,10 @@ namespace DeadByDaylight
             if ((!isGameOnTop) && (!isOverlayOnTop)) return; //if game and overlay are not on top, don't draw
             if (!Components.MainAssemblyToggle.Enabled) return; //main menu boolean to toggle the cheat on or off
 
+            float GetLuck = 0;
+            GetLuck = Memory.ZwReadFloat(processHandle, (IntPtr)GameBase.ToInt64() + 0x2618D70);
             
+            float Score = 0;
             var myPos = new Vector3();
             var USkillCheck = IntPtr.Zero;
             var UWorld = Memory.ZwReadPointer(processHandle, GWorldPtr, isWow64Process);
@@ -277,6 +282,11 @@ namespace DeadByDaylight
                         {
                             var ULocalPlayerControler = Memory.ZwReadPointer(processHandle,
                                 (IntPtr)ULocalPlayer.ToInt64() + 0x0038, isWow64Process);
+
+                            var Upawn = Memory.ZwReadPointer(processHandle, (IntPtr)ULocalPlayerControler.ToInt64() + 0x02B8, isWow64Process);
+                            var UplayerState = Memory.ZwReadPointer(processHandle, (IntPtr)Upawn.ToInt64() + 0x0250, isWow64Process);
+                            Score = Memory.ZwReadFloat(processHandle, (IntPtr)UplayerState.ToInt64() + 0x0230);
+                            
                             if (ULocalPlayerControler != IntPtr.Zero)
                             {
                                 var ULocalPlayerPawn = Memory.ZwReadPointer(processHandle,
@@ -314,6 +324,7 @@ namespace DeadByDaylight
                             
                         }
                     }
+
                 }
 
                 if (Components.MiscComponent.AutoSkillCheck.Enabled)
@@ -339,6 +350,9 @@ namespace DeadByDaylight
                         }
                     }
                 }
+
+                
+
 
                 var ULevel = Memory.ZwReadPointer(processHandle, (IntPtr)UWorld.ToInt64() + 0x38, isWow64Process);
                 if (ULevel != IntPtr.Zero)
@@ -449,12 +463,22 @@ namespace DeadByDaylight
                                        
                                     }
                                     int dist = (int)(GetDistance3D(myPos, tempVec));
-                                    //Vector2 vScreen_d3d11x = new Vector2(0, 0);
-                                    //if (Renderer.WorldToScreenUE4(tempVec, out vScreen_d3d11x, FMinimalViewInfo_Location, FMinimalViewInfo_Rotation, FMinimalViewInfo_FOV, wndMargins, wndSize))
-                                    //{
 
-                                    //    Renderer.DrawText(retname + " [" + dist + "m]", vScreen_d3d11x, Color.Purple, 12, TextAlignment.centered, false);
-                                    //}
+                                    //var Upawn = 
+                                    //var UPlayerState = Memory.ZwReadPointer(processHandle, (IntPtr)UWorldSettings.ToInt64() + 0x0358, isWow64Process);
+                                    //var Score = Memory.ZwReadFloat(processHandle, (IntPtr)UPlayerState.ToInt64() + 0x0230);
+
+
+                                    Vector2 vScreen_d3d11xx = new Vector2(0, 0);
+                                    if (AActorID == survivorID)
+                                    {
+                                        if (Renderer.WorldToScreenUE4(tempVec, out vScreen_d3d11xx, FMinimalViewInfo_Location, FMinimalViewInfo_Rotation, FMinimalViewInfo_FOV, wndMargins, wndSize))
+                                        {
+                                            if(dist < 10)
+                                            Renderer.DrawText(Score + "", vScreen_d3d11xx, Color.HotPink, 20, TextAlignment.centered, true);
+                                            //Renderer.DrawText(GetLuck + "", vScreen_d3d11x, Color.Honeydew, 20, TextAlignment.lefted, false);
+                                        }
+                                    }
 
                                     if (Components.VisualsComponent.DrawTheVisuals.Enabled) 
                                     {
@@ -484,7 +508,7 @@ namespace DeadByDaylight
                                                 Renderer.WorldToScreenUE4(new Vector3(tempVec.X, tempVec.Y, tempVec.Z - 150.0f),out vScreen_f33t, FMinimalViewInfo_Location,FMinimalViewInfo_Rotation, FMinimalViewInfo_FOV, wndMargins,wndSize);
                                                 if (Components.VisualsComponent.DrawKillerBox.Enabled)
                                                 {
-                                                    //Renderer.DrawFPSBox(vScreen_h3ad, vScreen_f33t,Components.VisualsComponent.KillerColor.Color,BoxStance.standing,Components.VisualsComponent.DrawBoxThic.Value,Components.VisualsComponent.DrawBoxBorder.Enabled);
+                                                    Renderer.DrawFPSBox(vScreen_h3ad, vScreen_f33t,Components.VisualsComponent.KillerColor.Color,BoxStance.standing,Components.VisualsComponent.DrawBoxThic.Value,Components.VisualsComponent.DrawBoxBorder.Enabled);
                                                     Renderer.DrawText("KILLER [" + dist + "m]", vScreen_f33t.X,vScreen_f33t.Y + 5,Components.VisualsComponent.KillerColor.Color, 12,TextAlignment.centered, false);
                                                 }
                                             }
@@ -512,7 +536,7 @@ namespace DeadByDaylight
                                                 Vector2 vScreen_d3d11 = new Vector2(0, 0);
                                                 if (Renderer.WorldToScreenUE4(tempVec, out vScreen_d3d11, FMinimalViewInfo_Location, FMinimalViewInfo_Rotation, FMinimalViewInfo_FOV, wndMargins, wndSize))
                                                 {
-
+                                                    if(dist < 100)
                                                     Renderer.DrawText(" Hook [" + dist + "m]", vScreen_d3d11, Color.DeepSkyBlue, 12, TextAlignment.centered, false);
                                                 }
                                             }
@@ -549,12 +573,13 @@ namespace DeadByDaylight
                                             if (AActorID == Pallet)
                                             {
                                                 
-                                                Vector2 vScreen_d3d11 = new Vector2(0, 0);
+                                                Vector2 vScreen_d3d11bb = new Vector2(0, 0);
                                                 
-                                                if (Renderer.WorldToScreenUE4(tempVec, out vScreen_d3d11, FMinimalViewInfo_Location, FMinimalViewInfo_Rotation, FMinimalViewInfo_FOV, wndMargins, wndSize))
+                                                if (Renderer.WorldToScreenUE4(tempVec, out vScreen_d3d11bb, FMinimalViewInfo_Location, FMinimalViewInfo_Rotation, FMinimalViewInfo_FOV, wndMargins, wndSize))
                                                 {
-
-                                                    Renderer.DrawText(" Pallet [" + dist + "m]", vScreen_d3d11, Color.AliceBlue, 12, TextAlignment.centered, false);
+                                                    if(dist < 100)
+                                                    Renderer.DrawText(" Pallet [" + dist + "m]", vScreen_d3d11bb, Color.AliceBlue, 12, TextAlignment.centered, false);
+                                                    
                                                 }
                                             }
                                         }
