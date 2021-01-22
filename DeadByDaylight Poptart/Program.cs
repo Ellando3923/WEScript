@@ -474,7 +474,7 @@ namespace DeadByDaylight
                                     {
                                         if (Renderer.WorldToScreenUE4(tempVec, out vScreen_d3d11xx, FMinimalViewInfo_Location, FMinimalViewInfo_Rotation, FMinimalViewInfo_FOV, wndMargins, wndSize))
                                         {
-                                            if(dist < 10)
+                                            if(dist < 0.1)
                                             Renderer.DrawText(Score + "", vScreen_d3d11xx, Color.HotPink, 20, TextAlignment.centered, true);
                                             //Renderer.DrawText(GetLuck + "", vScreen_d3d11x, Color.Honeydew, 20, TextAlignment.lefted, false);
                                         }
@@ -628,7 +628,7 @@ namespace DeadByDaylight
                                                 if (Renderer.WorldToScreenUE4(tempVec, out vScreen_d3d11, FMinimalViewInfo_Location, FMinimalViewInfo_Rotation, FMinimalViewInfo_FOV, wndMargins, wndSize))
                                                 {
                                                     if(IsCleansed == false)
-                                                    Renderer.DrawText(" Totem [" + HexID + dist + "m]", vScreen_d3d11, Color.HotPink, 12, TextAlignment.centered, false);
+                                                        Renderer.DrawText(" Totem [" + HexID + dist + "m]", vScreen_d3d11, Color.HotPink, 12, TextAlignment.centered, false);
                                                 }
                                             }
                                             
