@@ -372,7 +372,7 @@ namespace DeadByDaylight
                     if (GameBase == IntPtr.Zero) GameBase = Memory.ZwGetModule(processHandle, null, isWow64Process);
                     if (GameBase != IntPtr.Zero)
                     {
-                        Console.WriteLine(GameBase.ToString("X"));
+                        //Console.WriteLine(GameBase.ToString("X"));
                         GameSize = Memory.ZwGetModuleSize(processHandle, null, isWow64Process);
                         if (GWorldPtr == IntPtr.Zero && GNamesPtr == IntPtr.Zero) SigScan();
                         if (GWorldPtr != IntPtr.Zero && GNamesPtr != IntPtr.Zero)
