@@ -52,6 +52,8 @@ namespace DeadByDaylight
         public static uint Hook = 0;
         public static uint MedKit = 0;
         public static uint ToolBox = 0;
+        public static uint Key = 0;
+        public static uint Jigsaw = 0;
         public static Vector2 AimTarg2D = new Vector2(0, 0); //for aimbot
         public static Vector3 AimTarg3D = new Vector3(0, 0, 0);
 
@@ -60,7 +62,8 @@ namespace DeadByDaylight
         public static Menu VisualsMenu { get; private set; }
         public static Menu MiscMenu { get; private set; }
 
-        public static Menu AimbotMenu { get; private set; }
+        public static Menu AimbotMenuSurvivor { get; private set; }
+        public static Menu AimbotMenuKiller { get; private set; }
 
         class Components
         {
@@ -84,18 +87,32 @@ namespace DeadByDaylight
                 public static readonly MenuBool DrawHook = new MenuBool("drawHooks", "Draw Hooks positions", true);
                 public static readonly MenuBool DrawMedKit = new MenuBool("drawMedKits", "Draw MedKit positions", true);
                 public static readonly MenuBool DrawToolBox = new MenuBool("drawToolBox", "Draw ToolBox positions", true);
+                public static readonly MenuBool DrawKeys = new MenuBool("drawKeys", "Draw Key positions", true);
+                public static readonly MenuBool DrawJigSaw = new MenuBool("drawRemoveTraps", "Draw box positions", true);
                 //public static readonly MenuSlider OffsetGuesser = new MenuSlider("ofsgues", "Guess the offset", 10, 1, 250);
             }
 
-            public static class AimbotComponent
+            public static class AimbotComponentSurvivor
             {
+                
                 public static readonly MenuBool AimGlobalBool = new MenuBool("enableaim", "Enable Aimbot Features", true);
                 public static readonly MenuKeyBind AimKey = new MenuKeyBind("aimkey", "Aimbot HotKey (HOLD)", VirtualKeyCode.A, KeybindType.Hold, false);
 
                 public static readonly MenuSlider AimSpeed = new MenuSlider("aimspeed", "Aimbot Speed %", 12, 1, 100);
                 public static readonly MenuSlider AimFov = new MenuSlider("aimfov", "Aimbot FOV", 100, 4, 1000);
-                public static readonly MenuBool DrawFov = new MenuBool("DrwaFOV", "Enable FOV Circle Features", true);
+                
+                public static readonly MenuBool DrawFov = new MenuBool("DrawFOV", "Enable FOV Circle Features Survivor", true);
             }
+
+            public static class AimbotComponentKiller
+            {
+                public static readonly MenuKeyBind AimKey = new MenuKeyBind("aimkey", "Aimbot HotKey (HOLD)", VirtualKeyCode.A, KeybindType.Hold, false);
+                public static readonly MenuSlider AimSpeed = new MenuSlider("aimspeed", "Aimbot Speed %", 12, 1, 100);
+                public static readonly MenuSlider AimFov = new MenuSlider("aimfov", "Aimbot FOV", 100, 4, 1000);
+                public static readonly MenuBool AimGlobalBool = new MenuBool("enableaim", "Enable Aimbot Features", true);
+                public static readonly MenuBool DrawFov = new MenuBool("DrawFOV", "Enable FOV Circle Features Killer", true);
+            }
+
 
             public static class MiscComponent
             {
@@ -124,17 +141,30 @@ namespace DeadByDaylight
                 Components.VisualsComponent.DrawHook,
                  Components.VisualsComponent.DrawMedKit,
                  Components.VisualsComponent.DrawToolBox,
+                 Components.VisualsComponent.DrawKeys,
+                 Components.VisualsComponent.DrawJigSaw,
                  
                 //Components.VisualsComponent.OffsetGuesser,
             };
 
-            AimbotMenu = new Menu("aimbotmenu", "Aimbot Menu")
+            AimbotMenuSurvivor = new Menu("aimbotmenu", "Aimbot Killer Menu")
             {
-                Components.AimbotComponent.AimGlobalBool,
-                Components.AimbotComponent.AimKey,
-                Components.AimbotComponent.AimSpeed,
-                Components.AimbotComponent.AimFov,
-                Components.AimbotComponent.DrawFov,
+                Components.AimbotComponentKiller.AimGlobalBool,
+                Components.AimbotComponentKiller.AimKey,
+                Components.AimbotComponentKiller.AimSpeed,
+                Components.AimbotComponentKiller.AimFov,
+                Components.AimbotComponentKiller.DrawFov,
+               
+            };
+
+            AimbotMenuKiller = new Menu("aimbotmenuSurvivor", "Aimbot Survivor Menu")
+            {
+                
+                Components.AimbotComponentSurvivor.AimGlobalBool,
+                Components.AimbotComponentSurvivor.AimKey,
+                Components.AimbotComponentSurvivor.AimSpeed,
+                Components.AimbotComponentSurvivor.AimFov,
+                Components.AimbotComponentSurvivor.DrawFov,
             };
 
             MiscMenu = new Menu("miscmenu", "Misc Menu")
@@ -148,7 +178,8 @@ namespace DeadByDaylight
                 Components.MainAssemblyToggle.SetToolTip("The magical boolean which completely disables/enables the assembly!"),
                 VisualsMenu,
                 MiscMenu,
-                AimbotMenu,
+                AimbotMenuSurvivor,
+                AimbotMenuKiller,
             };
             RootMenu.Attach();
         }
@@ -494,11 +525,23 @@ namespace DeadByDaylight
                                         (IntPtr)USceneComponent.ToInt64() + 0x118);
                                     
                                     var HexID2 = Memory.ZwReadUInt32(processHandle, (IntPtr)(AActor.ToInt64() + 0x02C8));
-
-
-
-
+                                    int dist2 = (int)(GetDistance3D(myPos, tempVec));
                                     var retname = CachedID[AActorID];
+
+
+                                    //Vector2 vScreen_d3d11xxx = new Vector2(0, 0);
+                                    //if (AActorID > 0)
+                                    //{
+                                    //    if (Renderer.WorldToScreenUE4(tempVec, out vScreen_d3d11xxx, FMinimalViewInfo_Location, FMinimalViewInfo_Rotation, FMinimalViewInfo_FOV, wndMargins, wndSize))
+                                    //    {
+                                    //        //Renderer.DrawText("BP = " + retname, vScreen_d3d11xx, Color.HotPink, 20, TextAlignment.centered, true);
+
+
+                                    //        Renderer.DrawText("" + retname, vScreen_d3d11xxx, Color.HotPink, 20, TextAlignment.centered, true);
+                                    //    }
+                                    //}
+
+                                            
                                     if ((AActorID > 0)) //&& (AActorID < 700000)
                                     {
                                         if ((survivorID == 0) || (killerID == 0) || (escapeID == 0) ||
@@ -570,6 +613,16 @@ namespace DeadByDaylight
                                                 Chest = AActorID;
                                             }
 
+                                            if (retname.Contains("Key"))
+                                            {
+                                                Key = AActorID;
+                                            }
+
+                                            if (retname.Contains("ReverseBearTrapRemover"))
+                                            {
+                                                Jigsaw = AActorID;
+                                            }
+
                                             if (retname.StartsWith("Generator"))
                                                 generatorID = AActorID;
                                         }
@@ -626,6 +679,9 @@ namespace DeadByDaylight
                                             //    Console.WriteLine("Feet", Feet);
                                             //}
 
+
+
+                                            // for killer//
                                             Vector2 vScreen_h3adSurvivor = new Vector2(0, 0);
                                             Vector2 vScreen_f33tSurvivor = new Vector2(0, 0);
                                             if (Renderer.WorldToScreenUE4(new Vector3(tempVec.X, tempVec.Y, tempVec.Z + 60.0f), out vScreen_h3adSurvivor, FMinimalViewInfo_Location, FMinimalViewInfo_Rotation, FMinimalViewInfo_FOV, wndMargins, wndSize))
@@ -633,9 +689,9 @@ namespace DeadByDaylight
 
                                                 Renderer.WorldToScreenUE4(new Vector3(tempVec.X, tempVec.Y, tempVec.Z - 130.0f), out vScreen_f33tSurvivor, FMinimalViewInfo_Location, FMinimalViewInfo_Rotation, FMinimalViewInfo_FOV, wndMargins, wndSize);
 
-                                                if (Components.AimbotComponent.DrawFov.Enabled)
+                                                if (Components.AimbotComponentKiller.DrawFov.Enabled)
                                                 {
-                                                    Renderer.DrawCircle(GameCenterPos, Components.AimbotComponent.AimFov.Value, Color.White);
+                                                    Renderer.DrawCircle(GameCenterPos, Components.AimbotComponentKiller.AimFov.Value, Color.White);
                                                 }
 
                                                 if (Components.VisualsComponent.DrawSurvivorBox.Enabled)
@@ -645,7 +701,7 @@ namespace DeadByDaylight
                                                 }
 
                                                 var AimDist2D = GetDistance2D(vScreen_h3adSurvivor, GameCenterPos);
-                                                if (Components.AimbotComponent.AimFov.Value < AimDist2D) continue;
+                                                if (Components.AimbotComponentKiller.AimFov.Value < AimDist2D) continue;
                                                 
                                                 if (AimDist2D < fClosestPos)
                                                 {
@@ -653,7 +709,7 @@ namespace DeadByDaylight
                                                     AimTarg2D = vScreen_h3adSurvivor;
 
 
-                                                    if (Components.AimbotComponent.AimKey.Enabled && Components.AimbotComponent.AimGlobalBool.Enabled && dist <= 30)
+                                                    if (Components.AimbotComponentKiller.AimKey.Enabled && Components.AimbotComponentKiller.AimGlobalBool.Enabled && dist <= 30)
                                                     {
 
                                                         double DistX = 0;
@@ -661,8 +717,8 @@ namespace DeadByDaylight
                                                         DistX = (AimTarg2D.X) - GameCenterPos.X;
                                                         DistY = (AimTarg2D.Y) - GameCenterPos.Y;
 
-                                                        double slowDistX = DistX / (1.0f + (Math.Abs(DistX) / (1.0f + Components.AimbotComponent.AimSpeed.Value)));
-                                                        double slowDistY = DistY / (1.0f + (Math.Abs(DistY) / (1.0f + Components.AimbotComponent.AimSpeed.Value)));
+                                                        double slowDistX = DistX / (1.0f + (Math.Abs(DistX) / (1.0f + Components.AimbotComponentKiller.AimSpeed.Value)));
+                                                        double slowDistY = DistY / (1.0f + (Math.Abs(DistY) / (1.0f + Components.AimbotComponentKiller.AimSpeed.Value)));
                                                         Input.mouse_eventWS(MouseEventFlags.MOVE, (int)slowDistX, (int)slowDistY, MouseEventDataXButtons.NONE, IntPtr.Zero);
 
                                                         //Vector3 Aimassist = new Vector3()
@@ -675,21 +731,45 @@ namespace DeadByDaylight
 
 
 
-
+                                        //for survivor//
                                         if (AActorID == killerID)
                                         {
-                                            Vector2 vScreen_h3ad = new Vector2(0, 0);
-                                            Vector2 vScreen_f33t = new Vector2(0, 0);
-                                            if (Renderer.WorldToScreenUE4(new Vector3(tempVec.X, tempVec.Y, tempVec.Z + 80.0f), out vScreen_h3ad, FMinimalViewInfo_Location, FMinimalViewInfo_Rotation, FMinimalViewInfo_FOV, wndMargins, wndSize))
+                                            Vector2 vScreen_h3adKiller = new Vector2(0, 0);
+                                            Vector2 vScreen_f33tKiller = new Vector2(0, 0);
+                                            if (Renderer.WorldToScreenUE4(new Vector3(tempVec.X, tempVec.Y, tempVec.Z + 80.0f), out vScreen_h3adKiller, FMinimalViewInfo_Location, FMinimalViewInfo_Rotation, FMinimalViewInfo_FOV, wndMargins, wndSize))
                                             {
-                                                Renderer.WorldToScreenUE4(new Vector3(tempVec.X, tempVec.Y, tempVec.Z - 150.0f), out vScreen_f33t, FMinimalViewInfo_Location, FMinimalViewInfo_Rotation, FMinimalViewInfo_FOV, wndMargins, wndSize);
+                                                Renderer.WorldToScreenUE4(new Vector3(tempVec.X, tempVec.Y, tempVec.Z - 150.0f), out vScreen_f33tKiller, FMinimalViewInfo_Location, FMinimalViewInfo_Rotation, FMinimalViewInfo_FOV, wndMargins, wndSize);
                                                 if (Components.VisualsComponent.DrawKillerBox.Enabled)
                                                 {
-                                                    Renderer.DrawFPSBox(vScreen_h3ad, vScreen_f33t, Components.VisualsComponent.KillerColor.Color, BoxStance.standing, Components.VisualsComponent.DrawBoxThic.Value, Components.VisualsComponent.DrawBoxBorder.Enabled);
-                                                    Renderer.DrawText("KILLER [" + dist + "m]", vScreen_f33t.X, vScreen_f33t.Y + 5, Components.VisualsComponent.KillerColor.Color, 12, TextAlignment.centered, false);
+                                                    Renderer.DrawFPSBox(vScreen_h3adKiller, vScreen_f33tKiller, Components.VisualsComponent.KillerColor.Color, BoxStance.standing, Components.VisualsComponent.DrawBoxThic.Value, Components.VisualsComponent.DrawBoxBorder.Enabled);
+                                                    Renderer.DrawText("KILLER [" + dist + "m]", vScreen_f33tKiller.X, vScreen_f33tKiller.Y + 5, Components.VisualsComponent.KillerColor.Color, 12, TextAlignment.centered, false);
+
+                                                }
+
+                                                var AimDist2D = GetDistance2D(vScreen_h3adKiller, GameCenterPos);
+                                                if (Components.AimbotComponentSurvivor.AimFov.Value < AimDist2D) continue;
+
+                                                if (AimDist2D < fClosestPos)
+                                                {
+                                                    fClosestPos = AimDist2D;
+                                                    AimTarg2D = vScreen_h3adKiller;
 
 
+                                                    if (Components.AimbotComponentSurvivor.AimKey.Enabled && Components.AimbotComponentSurvivor.AimGlobalBool.Enabled && dist <= 30)
+                                                    {
 
+                                                        double DistX = 0;
+                                                        double DistY = 0;
+                                                        DistX = (AimTarg2D.X) - GameCenterPos.X;
+                                                        DistY = (AimTarg2D.Y) - GameCenterPos.Y;
+
+                                                        double slowDistX = DistX / (1.0f + (Math.Abs(DistX) / (1.0f + Components.AimbotComponentSurvivor.AimSpeed.Value)));
+                                                        double slowDistY = DistY / (1.0f + (Math.Abs(DistY) / (1.0f + Components.AimbotComponentSurvivor.AimSpeed.Value)));
+                                                        Input.mouse_eventWS(MouseEventFlags.MOVE, (int)slowDistX, (int)slowDistY, MouseEventDataXButtons.NONE, IntPtr.Zero);
+
+                                                        //Vector3 Aimassist = new Vector3()
+
+                                                    }
 
                                                 }
                                             }
@@ -704,7 +784,27 @@ namespace DeadByDaylight
                                             if (Renderer.WorldToScreenUE4(new Vector3(tempVec.X, tempVec.Y, tempVec.Z + 50.0f), out vScreen_d3d11, FMinimalViewInfo_Location, FMinimalViewInfo_Rotation, FMinimalViewInfo_FOV, wndMargins, wndSize))
                                             {
 
-                                                Renderer.DrawText("Locker", vScreen_d3d11, Color.Indigo, 12);
+                                                Renderer.DrawText("Locker[" + dist + "m]", vScreen_d3d11, Color.Indigo, 12);
+                                            }
+                                        }
+
+                                        if (AActorID == Jigsaw)
+                                        {
+                                            Vector2 vScreen_d3d11 = new Vector2(0, 0);
+                                            if (Renderer.WorldToScreenUE4(new Vector3(tempVec.X, tempVec.Y, tempVec.Z + 50.0f), out vScreen_d3d11, FMinimalViewInfo_Location, FMinimalViewInfo_Rotation, FMinimalViewInfo_FOV, wndMargins, wndSize))
+                                            {
+
+                                                Renderer.DrawText("JigSaw Box[" + dist + "m]", vScreen_d3d11, Color.LightGreen, 15);
+                                            }
+                                        }
+
+                                        if (AActorID == Key)
+                                        {
+                                            Vector2 vScreen_d3d11 = new Vector2(0, 0);
+                                            if (Renderer.WorldToScreenUE4(new Vector3(tempVec.X, tempVec.Y, tempVec.Z + 50.0f), out vScreen_d3d11, FMinimalViewInfo_Location, FMinimalViewInfo_Rotation, FMinimalViewInfo_FOV, wndMargins, wndSize))
+                                            {
+
+                                                Renderer.DrawText("Key[" + dist + "m]", vScreen_d3d11, Color.Firebrick, 15);
                                             }
                                         }
 
