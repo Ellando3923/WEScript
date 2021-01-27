@@ -32,10 +32,7 @@ namespace DeadByDaylight
         public static float FMinimalViewInfo_FOV = 0;
         public static Dictionary<UInt32, string> CachedID = new Dictionary<UInt32, string>();
         public static IntPtr FindWindow = IntPtr.Zero;
-        //public static float Score = 0;
-
-
-
+       
         public static bool wasAPressed = false;
         public static bool wasDPressed = false;
         public static uint survivorID = 0;
@@ -57,7 +54,6 @@ namespace DeadByDaylight
         public static uint Wiggle = 0;
         public static Vector2 AimTarg2D = new Vector2(0, 0); //for aimbot
         public static Vector3 AimTarg3D = new Vector3(0, 0, 0);
-
 
         public static Menu RootMenu { get; private set; }
         public static Menu VisualsMenu { get; private set; }
@@ -98,7 +94,8 @@ namespace DeadByDaylight
             {
 
                 public static readonly MenuBool AimGlobalBool = new MenuBool("enableaim", "Enable Aimbot Features", true);
-                public static readonly MenuKeyBind AimKey = new MenuKeyBind("aimkey", "Aimbot HotKey (HOLD)", VirtualKeyCode.A, KeybindType.Hold, false);
+                public static readonly MenuKeyBind AimKey = new MenuKeyBind("aimkey", "Aimbot HotKey (HOLD)", VirtualKeyCode.LeftMouse, KeybindType.Hold, false);
+                
 
                 public static readonly MenuSlider AimSpeed = new MenuSlider("aimspeed", "Aimbot Speed %", 12, 1, 100);
                 public static readonly MenuSlider Distance = new MenuSlider("Distance Killer", "Distance kill%", 12, 1, 100);
@@ -106,6 +103,7 @@ namespace DeadByDaylight
 
                 public static readonly MenuBool DrawFov = new MenuBool("DrawFOV", "Enable FOV Circle Features Survivor", true);
                 public static readonly MenuBool AutoWiggle = new MenuBool("Wiggle Wiggle Wiggle", "Enable Auto Wiggle Feature", true);
+                public static readonly MenuKeyBind Wiggle = new MenuKeyBind("wigglekey", "Wiggle HotKey (HOLD)", VirtualKeyCode.LeftMouse, KeybindType.Hold, false);
             }
 
             public static class AimbotComponentKiller
@@ -156,6 +154,7 @@ namespace DeadByDaylight
             {
                 Components.AimbotComponentKiller.AimGlobalBool,
                 Components.AimbotComponentKiller.AimKey,
+                //Components.AimbotComponentKiller.Wiggle,
                 Components.AimbotComponentKiller.AimSpeed,
                 Components.AimbotComponentKiller.AimFov,
                 Components.AimbotComponentKiller.DrawFov,
@@ -171,6 +170,7 @@ namespace DeadByDaylight
                 Components.AimbotComponentSurvivor.AimFov,
                 Components.AimbotComponentSurvivor.DrawFov,
                 Components.AimbotComponentSurvivor.AutoWiggle,
+                Components.AimbotComponentSurvivor.Wiggle,
             };
 
             MiscMenu = new Menu("miscmenu", "Misc Menu")
@@ -257,13 +257,14 @@ namespace DeadByDaylight
         {
 
             Input.keybd_eventWS(VirtualKeyCode.A, 0, KEYEVENTF.KEYDOWN, IntPtr.Zero);
-            System.Threading.Thread.Sleep(20);
+            System.Threading.Thread.Sleep(40);
             Input.keybd_eventWS(VirtualKeyCode.A, 0, KEYEVENTF.KEYUP, IntPtr.Zero);
-            System.Threading.Thread.Sleep(100);
+            System.Threading.Thread.Sleep(40);
             Input.keybd_eventWS(VirtualKeyCode.D, 0, KEYEVENTF.KEYDOWN, IntPtr.Zero);
-            System.Threading.Thread.Sleep(20);
+            System.Threading.Thread.Sleep(40);
             Input.keybd_eventWS(VirtualKeyCode.D, 0, KEYEVENTF.KEYUP, IntPtr.Zero);
-            System.Threading.Thread.Sleep(60);
+            //System.Threading.Thread.Sleep(60);
+            
         }
 
         public static Vector3 NormalizeAngle(Vector3 angle)
@@ -447,20 +448,6 @@ namespace DeadByDaylight
 
                                 var retname = CachedID[AActorID];
 
-
-                                //Vector2 vScreen_d3d11xxx = new Vector2(0, 0);
-                                //if (AActorID > 0)
-                                //{
-                                //    if (Renderer.WorldToScreenUE4(tempVec, out vScreen_d3d11xxx, FMinimalViewInfo_Location, FMinimalViewInfo_Rotation, FMinimalViewInfo_FOV, wndMargins, wndSize))
-                                //    {
-                                //        //Renderer.DrawText("BP = " + retname, vScreen_d3d11xx, Color.HotPink, 20, TextAlignment.centered, true);
-
-
-                                //        Renderer.DrawText("" + retname, vScreen_d3d11xxx, Color.HotPink, 20, TextAlignment.centered, true);
-                                //    }
-                                //}
-
-
                                 if ((AActorID > 0)) //&& (AActorID < 700000)
                                 {
                                     if ((survivorID == 0) || (killerID == 0) || (escapeID == 0) ||
@@ -500,13 +487,18 @@ namespace DeadByDaylight
                                     }
                                 }
 
-
+                                //if (Components.AimbotComponentKiller.AimKey.Enabled && dist < 10)
+                                //{
+                                //    Console.WriteLine(retname);
+                                //}
 
                                 if (Components.VisualsComponent.DrawTheVisuals.Enabled)
                                 {
 
                                     if (AActorID == survivorID)
-                                    {                                      
+                                    {
+                                        //Console.WriteLine(retname);
+                                        //Renderer.DrawText("" + retname, vScreen_d3d11xx, Color.HotPink, 20, TextAlignment.centered, true);
                                         // for killer//
                                         Vector2 vScreen_h3adSurvivor = new Vector2(0, 0);
                                         Vector2 vScreen_f33tSurvivor = new Vector2(0, 0);
@@ -555,8 +547,6 @@ namespace DeadByDaylight
                                         }
                                     }
 
-
-
                                     //for survivor//
                                     if (AActorID == killerID)
                                     {
@@ -602,14 +592,14 @@ namespace DeadByDaylight
 
                                     }
 
-                                    if (AActorID == killerID && dist < 2)
+                                    if (Components.AimbotComponentSurvivor.AutoWiggle.Enabled)
                                     {
-                                        if (Components.AimbotComponentSurvivor.AutoWiggle.Enabled)
-
+                                        
+                                        if (Components.AimbotComponentSurvivor.Wiggle.Enabled)
                                         {
-                                            Task.Factory.StartNew(() => { WiggleKey(); });
+                                            //Task.Factory.StartNew(() => { WiggleKey(); });
+                                            WiggleKey();
                                         }
-
                                     }
 
                                     if (AActorID == Locker && dist < 50)
@@ -621,7 +611,6 @@ namespace DeadByDaylight
                                             Renderer.DrawText("Locker[" + dist + "m]", vScreen_d3d11, Color.Indigo, 12);
                                         }
                                     }
-
                                     if (AActorID == Jigsaw)
                                     {
                                         Vector2 vScreen_d3d11 = new Vector2(0, 0);
@@ -631,7 +620,7 @@ namespace DeadByDaylight
                                             Renderer.DrawText("JigSaw Box[" + dist + "m]", vScreen_d3d11, Color.LightGreen, 15);
                                         }
                                     }
-
+                                    
                                     if (AActorID == Key)
                                     {
                                         Vector2 vScreen_d3d11 = new Vector2(0, 0);
@@ -679,8 +668,6 @@ namespace DeadByDaylight
                                         }
                                     }
 
-
-
                                     if (Components.VisualsComponent.DrawPallet.Enabled) // not working???
                                     {
                                         if (AActorID == Pallet)
@@ -710,7 +697,6 @@ namespace DeadByDaylight
 
                                     }
 
-
                                     if (Components.VisualsComponent.DrawTrap.Enabled)
                                     {
                                         if (AActorID == Trap)
@@ -724,8 +710,6 @@ namespace DeadByDaylight
                                         }
 
                                     }
-
-
 
                                     if (Components.VisualsComponent.DrawMiscInfo.Enabled)
                                     {
