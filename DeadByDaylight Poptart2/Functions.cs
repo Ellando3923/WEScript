@@ -6,12 +6,13 @@ namespace DeadByDaylight
 {
     public class Functions
     {
-        public static void Ppc(out IntPtr ControllerRotation, out float Score,out UInt32 Name, out IntPtr USkillCheck)
+        public static void Ppc(out IntPtr ControllerRotation, out float Score, out UInt32 _currentHealthStateCount, out UInt32 Name, out IntPtr USkillCheck)
         {
             ControllerRotation = IntPtr.Zero;
             Score = 0;
             USkillCheck = IntPtr.Zero;
             Name = 0;
+            _currentHealthStateCount = 0;
             //var UWorld = Memory.ZwReadPointer(processHandle, GWorldPtr, isWow64Process);
 
             if (Program.GWorldPtr != IntPtr.Zero)
@@ -45,6 +46,7 @@ namespace DeadByDaylight
                                     if (UInteractionHandler != IntPtr.Zero)
                                     {
                                         USkillCheck = Memory.ZwReadPointer(Program.processHandle, (IntPtr)(UInteractionHandler.ToInt64() + Offsets.UE.UPlayerInteractionHandler._skillCheck), true);
+                                        _currentHealthStateCount = Memory.ZwReadUInt32(Program.processHandle, (IntPtr)(UInteractionHandler.ToInt64() + Offsets.UE.UPlayerInteractionHandler._currentHealthStateCount));
                                     }
 
                                 }
