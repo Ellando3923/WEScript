@@ -48,6 +48,8 @@ namespace DeadByDaylight
                 public static Int64 Character = 0x278;
                 public static Int64 TransformComponent = 0x280;
                 public static Int64 ControlRotation = 0x20A;
+                public static Int32 stateName = 0x0258;
+                
             }
 
             public class APawn
@@ -68,6 +70,7 @@ namespace DeadByDaylight
             public class UPlayerInteractionHandler
             {
                 public static Int64 _skillCheck = 0x02B8;
+                public static UInt32 _currentHealthStateCount = 0x018C;
             }
 
 
@@ -91,6 +94,7 @@ namespace DeadByDaylight
             {
                 public static Int64 Instigator = 0x0128;
                 public static Int64 RootComponent = 0x140;
+                
             }
 
             public class ACharacter
