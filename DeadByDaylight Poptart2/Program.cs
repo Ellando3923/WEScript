@@ -414,8 +414,8 @@ namespace DeadByDaylight
             float Score = 0;
             var USkillCheck = IntPtr.Zero;
             UInt32 Name = 0;
-
-            Functions.Ppc(out ControllerRotation, out Score, out Name, out USkillCheck);
+            UInt32 _currentHealthStateCount = 0;
+            Functions.Ppc(out ControllerRotation, out Score, out _currentHealthStateCount, out Name, out USkillCheck);
 
 
             if (Components.MiscComponent.AutoSkillCheck.Enabled)
@@ -440,6 +440,7 @@ namespace DeadByDaylight
                             isWow64Process);
                         if (AActor != IntPtr.Zero)
                         {
+                            //var Health = Memory.ZwReadUInt32(processHandle, (IntPtr)AActor.ToInt64() + Offsets.UE.AActor.Health);
                             var AActorID = Memory.ZwReadUInt32(processHandle, (IntPtr)AActor.ToInt64() + 0x18);
                             if (!CachedID.ContainsKey(AActorID))
                             {
@@ -493,7 +494,10 @@ namespace DeadByDaylight
                                 {
                                     if (Renderer.WorldToScreenUE4(tempVec, out vScreen_d3d11xx, FMinimalViewInfo_Location, FMinimalViewInfo_Rotation, FMinimalViewInfo_FOV, wndMargins, wndSize))
                                     {
-                                        
+                                        //Console.WriteLine(Health);
+                                        //2884479152 injured
+
+
                                         if (dist < 5)
                                             Renderer.DrawText("BP = " + Score , vScreen_d3d11xx, Color.HotPink, 20, TextAlignment.centered, true);
 
@@ -526,7 +530,7 @@ namespace DeadByDaylight
 
                                             if (Components.VisualsComponent.DrawSurvivorBox.Enabled && dist > 1)
                                             {
-                                                Renderer.DrawLine(GameCenterPos2, vScreen_h3adSurvivor, Components.VisualsComponent.SurvColor.Color, 2);
+                                                Renderer.DrawLine(GameCenterPos2, vScreen_h3adSurvivor, Components.VisualsComponent.SurvColor.Color, Components.VisualsComponent.DrawBoxThic.Value);
                                                 //Renderer.DrawFPSBox(vScreen_h3adSurvivor, vScreen_f33tSurvivor, Components.VisualsComponent.SurvColor.Color, BoxStance.standing, Components.VisualsComponent.DrawBoxThic.Value, Components.VisualsComponent.DrawBoxBorder.Enabled);
                                                 Renderer.DrawText("SURVIVOR [" + dist + "m]", vScreen_f33tSurvivor.X, vScreen_f33tSurvivor.Y + 5, Components.VisualsComponent.SurvColor.Color, 12, TextAlignment.centered, false);
                                             }
@@ -572,7 +576,7 @@ namespace DeadByDaylight
                                             if (Components.VisualsComponent.DrawKillerBox.Enabled)
                                             {
                                                 //Renderer.DrawFPSBox(vScreen_h3adKiller, vScreen_f33tKiller, Components.VisualsComponent.KillerColor.Color, BoxStance.standing, Components.VisualsComponent.DrawBoxThic.Value, Components.VisualsComponent.DrawBoxBorder.Enabled);
-                                                Renderer.DrawLine(GameCenterPos2, vScreen_h3adKiller, Color.Red, 2);
+                                                Renderer.DrawLine(GameCenterPos2, vScreen_h3adKiller, Components.VisualsComponent.KillerColor.Color, Components.VisualsComponent.DrawBoxThic.Value);
                                                 Renderer.DrawText("KILLER [" + dist + "m]", vScreen_f33tKiller.X, vScreen_f33tKiller.Y + 5, Components.VisualsComponent.KillerColor.Color, 12, TextAlignment.centered, false);
 
                                             }
