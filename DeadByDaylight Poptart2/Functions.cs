@@ -1,5 +1,4 @@
-﻿using System;
-using SharpDX;
+using System;
 using WeScriptWrapper;
 
 
@@ -7,11 +6,12 @@ namespace DeadByDaylight
 {
     public class Functions
     {
-        public static void Ppc(out IntPtr ControllerRotation, out float Score, out IntPtr USkillCheck)
+        public static void Ppc(out IntPtr ControllerRotation, out float Score,out UInt32 Name, out IntPtr USkillCheck)
         {
             ControllerRotation = IntPtr.Zero;
             Score = 0;
             USkillCheck = IntPtr.Zero;
+            Name = 0;
             //var UWorld = Memory.ZwReadPointer(processHandle, GWorldPtr, isWow64Process);
 
             if (Program.GWorldPtr != IntPtr.Zero)
@@ -32,7 +32,7 @@ namespace DeadByDaylight
                                 var Upawn = Memory.ZwReadPointer(Program.processHandle, (IntPtr)(ULocalPlayerControler.ToInt64() + Offsets.UE.APlayerController.AcknowledgedPawn), true);
                                 var UplayerState = Memory.ZwReadPointer(Program.processHandle, (IntPtr)(Upawn.ToInt64() + Offsets.UE.APawn.PlayerState), true);
                                 Score = Memory.ZwReadFloat(Program.processHandle, (IntPtr)(UplayerState.ToInt64() + Offsets.UE.APlayerState.Score));
-
+                                Name = Memory.ZwReadUInt32(Program.processHandle, (IntPtr)(UplayerState.ToInt64() + Offsets.UE.APlayerState.Name));
 
 
                                 ControllerRotation = Memory.ZwReadPointer(Program.processHandle, (IntPtr)(ULocalPlayerControler.ToInt64() + Offsets.UE.AController.ControlRotation), true);
@@ -58,7 +58,7 @@ namespace DeadByDaylight
 
                                     Program.FMinimalViewInfo_FOV = Memory.ZwReadFloat(Program.processHandle, (IntPtr)APlayerCameraManager.ToInt64() + 0x1A80 + 0x0018);
 
-                                    
+
                                 }
 
                             }
