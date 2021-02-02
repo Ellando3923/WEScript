@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 namespace DeadByDaylight
 {
     public class Offsets
@@ -62,7 +62,7 @@ namespace DeadByDaylight
             public class UdbdPlayer
             {
                 public static Int64 _interactionHandler = 0x888;
-                
+
             }
 
             public class UPlayerInteractionHandler
@@ -79,6 +79,7 @@ namespace DeadByDaylight
                 public static Int64 PlayerNamePrivate = 0x318;
                 public static Int64 Team = 0x4C9;
                 public static Int64 Score = 0x0230;
+                public static Int32 Name = 0x0318;
             }
 
             public class AKSTeamState
