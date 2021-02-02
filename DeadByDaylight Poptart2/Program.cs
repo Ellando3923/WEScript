@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Threading.Tasks;
 using SharpDX;
 using WeScriptWrapper;
 using WeScript.SDK.UI;
@@ -27,12 +26,13 @@ namespace DeadByDaylight
         public static IntPtr GWorldPtr2 = IntPtr.Zero;
         public static IntPtr GNamesPtr = IntPtr.Zero;
         public static Vector2 GameCenterPos = new Vector2(0, 0);
+        public static Vector2 GameCenterPos2 = new Vector2(0, 0);
         public static Vector3 FMinimalViewInfo_Location = new Vector3(0, 0, 0);
         public static Vector3 FMinimalViewInfo_Rotation = new Vector3(0, 0, 0);
         public static float FMinimalViewInfo_FOV = 0;
         public static Dictionary<UInt32, string> CachedID = new Dictionary<UInt32, string>();
         public static IntPtr FindWindow = IntPtr.Zero;
-       
+
         public static bool wasAPressed = false;
         public static bool wasDPressed = false;
         public static uint survivorID = 0;
@@ -95,7 +95,7 @@ namespace DeadByDaylight
 
                 public static readonly MenuBool AimGlobalBool = new MenuBool("enableaim", "Enable Aimbot Features", true);
                 public static readonly MenuKeyBind AimKey = new MenuKeyBind("aimkey", "Aimbot HotKey (HOLD)", VirtualKeyCode.LeftMouse, KeybindType.Hold, false);
-                
+
 
                 public static readonly MenuSlider AimSpeed = new MenuSlider("aimspeed", "Aimbot Speed %", 12, 1, 100);
                 public static readonly MenuSlider Distance = new MenuSlider("Distance Killer", "Distance kill%", 12, 1, 100);
@@ -104,6 +104,8 @@ namespace DeadByDaylight
                 public static readonly MenuBool DrawFov = new MenuBool("DrawFOV", "Enable FOV Circle Features Survivor", true);
                 public static readonly MenuBool AutoWiggle = new MenuBool("Wiggle Wiggle Wiggle", "Enable Auto Wiggle Feature", true);
                 public static readonly MenuKeyBind Wiggle = new MenuKeyBind("wigglekey", "Wiggle HotKey (HOLD)", VirtualKeyCode.LeftMouse, KeybindType.Hold, false);
+                public static readonly MenuBool AutoStruggle = new MenuBool("Struggle", "Enable Auto Struggle Feature", true);
+                public static readonly MenuKeyBind Struggle = new MenuKeyBind("strugglekey", "Struggle HotKey (HOLD)", VirtualKeyCode.A, KeybindType.Hold, false);
             }
 
             public static class AimbotComponentKiller
@@ -171,6 +173,8 @@ namespace DeadByDaylight
                 Components.AimbotComponentSurvivor.DrawFov,
                 Components.AimbotComponentSurvivor.AutoWiggle,
                 Components.AimbotComponentSurvivor.Wiggle,
+                Components.AimbotComponentSurvivor.AutoWiggle,
+                Components.AimbotComponentSurvivor.Struggle,
             };
 
             MiscMenu = new Menu("miscmenu", "Misc Menu")
@@ -205,7 +209,7 @@ namespace DeadByDaylight
             Vector3 targetVec = new Vector3(0, 0, 0);
             var ActorPawn = Memory.ReadPointer(processHandle, playerPtr + 0x128, isWow64Process);
             var mesh = Memory.ReadPointer(processHandle, ActorPawn + 0x0290, isWow64Process);
-            Console.WriteLine(ActorPawn);
+            //Console.WriteLine(ActorPawn);
             var BoneMatrixPtr = Memory.ReadPointer(processHandle, (mesh + 0x4A0), isWow64Process); //m_dwBoneMatrix
             if (BoneMatrixPtr != IntPtr.Zero)
             {
@@ -234,10 +238,8 @@ namespace DeadByDaylight
             if (USkillCheck != IntPtr.Zero)
             {
 
-                var isDisplayed = Memory.ZwReadBool(processHandle,
-                    (IntPtr)USkillCheck.ToInt64() + 0x027C);
-                if (isDisplayed && LastSpacePressedDT.AddMilliseconds(200) <
-                    DateTime.Now)
+                var isDisplayed = Memory.ZwReadBool(processHandle, (IntPtr)USkillCheck.ToInt64() + 0x027C);
+                if (isDisplayed)
                 {
                     var currentProgress = Memory.ZwReadFloat(processHandle,
                         (IntPtr)USkillCheck.ToInt64() + 0x022C); //0x02A0
@@ -246,7 +248,6 @@ namespace DeadByDaylight
 
                     if (currentProgress > startSuccessZone)
                     {
-                        LastSpacePressedDT = DateTime.Now;
                         Input.KeyPress(VirtualKeyCode.Space);
                     }
                 }
@@ -264,7 +265,14 @@ namespace DeadByDaylight
             System.Threading.Thread.Sleep(40);
             Input.keybd_eventWS(VirtualKeyCode.D, 0, KEYEVENTF.KEYUP, IntPtr.Zero);
             //System.Threading.Thread.Sleep(60);
-            
+
+        }
+
+        public static void Struggle()
+        {
+            Input.keybd_eventWS(VirtualKeyCode.F, 0, KEYEVENTF.KEYDOWN, IntPtr.Zero);
+            System.Threading.Thread.Sleep(40);
+            Input.keybd_eventWS(VirtualKeyCode.F, 0, KEYEVENTF.KEYUP, IntPtr.Zero);
         }
 
         public static Vector3 NormalizeAngle(Vector3 angle)
@@ -382,7 +390,8 @@ namespace DeadByDaylight
                             wndMargins = Renderer.GetWindowMargins(FindWindow);
                             wndSize = Renderer.GetWindowSize(FindWindow);
                             isGameOnTop = Renderer.IsGameOnTop(FindWindow);
-                            GameCenterPos = new Vector2(wndSize.X / 2 + wndMargins.X, wndSize.Y / 2 + wndMargins.Y); //even if the game is windowed, calculate perfectly it's "center" for aim or crosshair
+                            GameCenterPos = new Vector2(wndSize.X / 2 + wndMargins.X, wndSize.Y / 2 + wndMargins.Y);
+                            GameCenterPos2 = new Vector2(wndSize.X / 2 + wndMargins.X, wndSize.Y / 2 + wndMargins.Y + 750.0f);//even if the game is windowed, calculate perfectly it's "center" for aim or crosshair
                             isOverlayOnTop = Overlay.IsOnTop();
                         }
                     }
@@ -404,8 +413,9 @@ namespace DeadByDaylight
             var ControllerRotation = IntPtr.Zero;
             float Score = 0;
             var USkillCheck = IntPtr.Zero;
+            UInt32 Name = 0;
 
-            Functions.Ppc(out ControllerRotation, out Score, out USkillCheck);
+            Functions.Ppc(out ControllerRotation, out Score, out Name, out USkillCheck);
 
 
             if (Components.MiscComponent.AutoSkillCheck.Enabled)
@@ -430,21 +440,23 @@ namespace DeadByDaylight
                             isWow64Process);
                         if (AActor != IntPtr.Zero)
                         {
-                            var AActorID = Memory.ZwReadUInt32(processHandle,
-                                    (IntPtr)AActor.ToInt64() + 0x18);
+                            var AActorID = Memory.ZwReadUInt32(processHandle, (IntPtr)AActor.ToInt64() + 0x18);
                             if (!CachedID.ContainsKey(AActorID))
                             {
                                 var retname = GetNameFromID(AActorID);
                                 CachedID.Add(AActorID, retname);
                             }
-                            var USceneComponent = Memory.ZwReadPointer(processHandle,
-                                (IntPtr)AActor.ToInt64() + 0x140, isWow64Process);
+                            var USceneComponent = Memory.ZwReadPointer(processHandle, (IntPtr)AActor.ToInt64() + 0x140, isWow64Process);
                             if (USceneComponent != IntPtr.Zero)
                             {
-                                var tempVec = Memory.ZwReadVector3(processHandle,
+                                var tempVec2 = Memory.ZwReadVector3(processHandle,
                                     (IntPtr)USceneComponent.ToInt64() + 0x118);
 
-                                var HexID2 = Memory.ZwReadUInt32(processHandle, (IntPtr)(AActor.ToInt64() + 0x02C8));
+                                //var UDBDOutlineComponent = Memory.ZwReadPointer(processHandle, (IntPtr)AActor.ToInt64() + 0x0240, true);
+                                //var OutlineName = Memory.ZwReadUInt32(processHandle, (IntPtr)UDBDOutlineComponent.ToInt64() + 0x0298);
+                                //var AlwaysVisible = Memory.ZwReadBool(processHandle, (IntPtr)UDBDOutlineComponent.ToInt64() + 0x02C9);
+
+                                //Console.WriteLine(GetNameFromID(OutlineName));
 
                                 var retname = CachedID[AActorID];
 
@@ -452,7 +464,7 @@ namespace DeadByDaylight
                                 {
                                     if ((survivorID == 0) || (killerID == 0) || (escapeID == 0) ||
                                         (hatchID == 0) || (generatorID == 0) || (totemID == 0) || (HexID == 0))
-                                    {                                        
+                                    {
                                         if (retname.Contains("BP_CamperInteractable_")) survivorID = AActorID;
                                         if (retname.Contains("Trap")) Trap = AActorID;
                                         if (retname.Contains("Wiggle")) Wiggle = AActorID;
@@ -471,26 +483,26 @@ namespace DeadByDaylight
                                         if (retname.StartsWith("Generator")) generatorID = AActorID;
                                     }
                                 }
-                                int dist = (int)(GetDistance3D(FMinimalViewInfo_Location, tempVec));
 
+
+                                var tempVec = Memory.ZwReadVector3(processHandle, (IntPtr)USceneComponent.ToInt64() + 0x118);
+                                int dist = (int)(GetDistance3D(FMinimalViewInfo_Location, tempVec));
+                                
                                 Vector2 vScreen_d3d11xx = new Vector2(0, 0);
                                 if (AActorID == survivorID)
                                 {
                                     if (Renderer.WorldToScreenUE4(tempVec, out vScreen_d3d11xx, FMinimalViewInfo_Location, FMinimalViewInfo_Rotation, FMinimalViewInfo_FOV, wndMargins, wndSize))
-                                    {                                        
+                                    {
+                                        
+                                        if (dist < 5)
+                                            Renderer.DrawText("BP = " + Score , vScreen_d3d11xx, Color.HotPink, 20, TextAlignment.centered, true);
 
-                                        if (dist < 0.1)
-                                            Renderer.DrawText("BP = " + Score, vScreen_d3d11xx, Color.HotPink, 20, TextAlignment.centered, true);
-
-                                        if (AActorID == killerID && dist < 50)
-                                            Renderer.DrawText("RUN", vScreen_d3d11xx, Color.Red, 50);
+                                        //if (AActorID == killerID && dist < 50)
+                                        //    Renderer.DrawText("RUN", vScreen_d3d11xx, Color.Red, 50);
                                     }
                                 }
 
-                                //if (Components.AimbotComponentKiller.AimKey.Enabled && dist < 10)
-                                //{
-                                //    Console.WriteLine(retname);
-                                //}
+
 
                                 if (Components.VisualsComponent.DrawTheVisuals.Enabled)
                                 {
@@ -502,7 +514,7 @@ namespace DeadByDaylight
                                         // for killer//
                                         Vector2 vScreen_h3adSurvivor = new Vector2(0, 0);
                                         Vector2 vScreen_f33tSurvivor = new Vector2(0, 0);
-                                        if (Renderer.WorldToScreenUE4(new Vector3(tempVec.X, tempVec.Y, tempVec.Z + 60.0f), out vScreen_h3adSurvivor, FMinimalViewInfo_Location, FMinimalViewInfo_Rotation, FMinimalViewInfo_FOV, wndMargins, wndSize))
+                                        if (Renderer.WorldToScreenUE4(new Vector3(tempVec.X, tempVec.Y, tempVec.Z), out vScreen_h3adSurvivor, FMinimalViewInfo_Location, FMinimalViewInfo_Rotation, FMinimalViewInfo_FOV, wndMargins, wndSize))
                                         {
 
                                             Renderer.WorldToScreenUE4(new Vector3(tempVec.X, tempVec.Y, tempVec.Z - 130.0f), out vScreen_f33tSurvivor, FMinimalViewInfo_Location, FMinimalViewInfo_Rotation, FMinimalViewInfo_FOV, wndMargins, wndSize);
@@ -512,9 +524,10 @@ namespace DeadByDaylight
                                                 Renderer.DrawCircle(GameCenterPos, Components.AimbotComponentKiller.AimFov.Value, Color.White);
                                             }
 
-                                            if (Components.VisualsComponent.DrawSurvivorBox.Enabled)
+                                            if (Components.VisualsComponent.DrawSurvivorBox.Enabled && dist > 1)
                                             {
-                                                Renderer.DrawFPSBox(vScreen_h3adSurvivor, vScreen_f33tSurvivor, Components.VisualsComponent.SurvColor.Color, BoxStance.standing, Components.VisualsComponent.DrawBoxThic.Value, Components.VisualsComponent.DrawBoxBorder.Enabled);
+                                                Renderer.DrawLine(GameCenterPos2, vScreen_h3adSurvivor, Components.VisualsComponent.SurvColor.Color, 2);
+                                                //Renderer.DrawFPSBox(vScreen_h3adSurvivor, vScreen_f33tSurvivor, Components.VisualsComponent.SurvColor.Color, BoxStance.standing, Components.VisualsComponent.DrawBoxThic.Value, Components.VisualsComponent.DrawBoxBorder.Enabled);
                                                 Renderer.DrawText("SURVIVOR [" + dist + "m]", vScreen_f33tSurvivor.X, vScreen_f33tSurvivor.Y + 5, Components.VisualsComponent.SurvColor.Color, 12, TextAlignment.centered, false);
                                             }
 
@@ -547,6 +560,7 @@ namespace DeadByDaylight
                                         }
                                     }
 
+
                                     //for survivor//
                                     if (AActorID == killerID)
                                     {
@@ -557,7 +571,8 @@ namespace DeadByDaylight
                                             Renderer.WorldToScreenUE4(new Vector3(tempVec.X, tempVec.Y, tempVec.Z - 150.0f), out vScreen_f33tKiller, FMinimalViewInfo_Location, FMinimalViewInfo_Rotation, FMinimalViewInfo_FOV, wndMargins, wndSize);
                                             if (Components.VisualsComponent.DrawKillerBox.Enabled)
                                             {
-                                                Renderer.DrawFPSBox(vScreen_h3adKiller, vScreen_f33tKiller, Components.VisualsComponent.KillerColor.Color, BoxStance.standing, Components.VisualsComponent.DrawBoxThic.Value, Components.VisualsComponent.DrawBoxBorder.Enabled);
+                                                //Renderer.DrawFPSBox(vScreen_h3adKiller, vScreen_f33tKiller, Components.VisualsComponent.KillerColor.Color, BoxStance.standing, Components.VisualsComponent.DrawBoxThic.Value, Components.VisualsComponent.DrawBoxBorder.Enabled);
+                                                Renderer.DrawLine(GameCenterPos2, vScreen_h3adKiller, Color.Red, 2);
                                                 Renderer.DrawText("KILLER [" + dist + "m]", vScreen_f33tKiller.X, vScreen_f33tKiller.Y + 5, Components.VisualsComponent.KillerColor.Color, 12, TextAlignment.centered, false);
 
                                             }
@@ -589,17 +604,23 @@ namespace DeadByDaylight
 
                                             }
                                         }
-
                                     }
+
+
 
                                     if (Components.AimbotComponentSurvivor.AutoWiggle.Enabled)
                                     {
-                                        
+
                                         if (Components.AimbotComponentSurvivor.Wiggle.Enabled)
                                         {
                                             //Task.Factory.StartNew(() => { WiggleKey(); });
                                             WiggleKey();
                                         }
+                                    }
+
+                                    if (Components.AimbotComponentSurvivor.AutoStruggle.Enabled && Components.AimbotComponentSurvivor.Struggle.Enabled)
+                                    {
+                                        Struggle();
                                     }
 
                                     if (AActorID == Locker && dist < 50)
@@ -620,7 +641,7 @@ namespace DeadByDaylight
                                             Renderer.DrawText("JigSaw Box[" + dist + "m]", vScreen_d3d11, Color.LightGreen, 15);
                                         }
                                     }
-                                    
+
                                     if (AActorID == Key)
                                     {
                                         Vector2 vScreen_d3d11 = new Vector2(0, 0);
@@ -718,13 +739,14 @@ namespace DeadByDaylight
                                         {
 
                                             var IsCleansed = Memory.ZwReadBool(processHandle, (IntPtr)AActor.ToInt64() + 0x02D4);
-                                            var HexID = Memory.ZwReadString(processHandle, (IntPtr)(AActor.ToInt64() + 0x02C8), true, 20);
+                                            var HexID = Memory.ZwReadUInt32(processHandle, (IntPtr)(AActor.ToInt64() + 0x02C8));
+                                            var HexID2 = GetNameFromID(HexID);
 
                                             Vector2 vScreen_d3d11 = new Vector2(0, 0);
                                             if (Renderer.WorldToScreenUE4(tempVec, out vScreen_d3d11, FMinimalViewInfo_Location, FMinimalViewInfo_Rotation, FMinimalViewInfo_FOV, wndMargins, wndSize))
                                             {
                                                 if (IsCleansed == false)
-                                                    Renderer.DrawText(" Totem [" + HexID + dist + "m]", vScreen_d3d11, Color.HotPink, 12, TextAlignment.centered, false);
+                                                    Renderer.DrawText(" Totem [" + HexID2 + dist + "m]", vScreen_d3d11, Color.HotPink, 12, TextAlignment.centered, false);
                                             }
                                         }
 
@@ -747,8 +769,7 @@ namespace DeadByDaylight
                                         var isRepaired = Memory.ZwReadBool(processHandle, (IntPtr)AActor.ToInt64() + 0x02C9);
                                         var isBlocked = Memory.ZwReadBool(processHandle, (IntPtr)AActor.ToInt64() + 0x038C);
 
-                                        var currentProgressPercent =
-                                            Memory.ZwReadFloat(processHandle, (IntPtr)AActor.ToInt64() + 0x02D8) * 100;
+                                        var currentProgressPercent = Memory.ZwReadFloat(processHandle, (IntPtr)AActor.ToInt64() + 0x02D8) * 100;
                                         Color selectedColor;
                                         if (isBlocked)
                                             selectedColor = Color.Red;
