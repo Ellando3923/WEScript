@@ -15,8 +15,101 @@ namespace DeadByDaylight
             {
                 public static Int64 PersistentLevel = 0x38; // public class ULevel*
                 public static Int64 NetworkManager = 0x60; // public class AGameNetworkManager*
-                public static Int64 OwningGameInstance = 0x198; // public class UGameInstance*
+                public static Int64 OwningGameInstance = 0x198;// public class UGameInstance*
+                public static Int64 gameState = 0x0140;
             }
+
+            public class GameState
+            {
+                public static Int64 _meatHooks = 0x0560;
+                public static Int64 _searchables = 0x0570;
+                public static Int64 _generators = 0x0580;
+                public static Int64 _escapeDoors = 0x0590;
+                public static Int64 _hatches = 0x05A0;
+                public static Int64 _reverseBearTrapRemovers = 0x05B0;
+                public static Int64 _baseTraps = 0x05C0;
+                public static Int64 _pallets = 0x05D0;
+                public static Int64 _windows = 0x05E0;
+                public static Int64 _lockers = 0x05F0;
+                public static Int64 _totems = 0x0600;
+            }
+
+            public class _meatHooks
+            {
+                public static Int32 IsSurvivorStruggling = 0x02D8;
+            }
+
+            public class _searchables
+            {
+                public static Int64 _hasBeenSearched = 0x02F4;
+                public static Int32 _itemIdToSpawn = 0x02E8;
+                public static Int64 _itemInsideSearchable = 0x02E8;
+
+            }
+
+            //from_searchables
+            public class Ucollectable
+            {
+                public static Int32 itemId = 0x02D0; //GetNameFromID
+            }
+
+            public class _generators
+            {
+                public static int IsRepaired = 0x02C9;
+                //DUPLICATE
+            }
+
+            public class _escapeDoors
+            {
+                public static Int64 _activated = 0x0310;
+            }
+
+            public class _hatches
+            {
+                //Duplicate
+            }
+
+            public class _reverseBearTrapRemovers
+            {
+                //Keys
+            }
+
+            public class _baseTraps
+            {
+                public static Int64 _isTrapSet = 0x0408;
+            }
+
+            public enum EPalletState
+            {
+                Up = 0,
+                Falling = 1,
+                Fallen = 2,
+                Destroyed = 3,
+                Illusionary = 4,
+                MAX = 5,
+            };
+            public class _pallets
+            {
+                public static UInt64 _state = 0x02C4;
+            }
+
+            public class _windows
+            {
+
+            }
+
+            public class _lockers
+            {
+
+            }
+
+            public class _totems
+            {
+
+            }
+
+
+
 
             public class ULevel
             {
@@ -49,7 +142,7 @@ namespace DeadByDaylight
                 public static Int64 TransformComponent = 0x280;
                 public static Int64 ControlRotation = 0x20A;
                 public static Int32 stateName = 0x0258;
-                
+
             }
 
             public class APawn
@@ -94,7 +187,7 @@ namespace DeadByDaylight
             {
                 public static Int64 Instigator = 0x0128;
                 public static Int64 RootComponent = 0x140;
-                
+
             }
 
             public class ACharacter
@@ -168,7 +261,7 @@ namespace DeadByDaylight
             // from ACameraActor to here
             public class UCameraComponent
             {
-                public static Int64 FieldOfView = 0x1F0;
+                public static Int64 FieldOfView = 0x0210;
             }
         }
     }
