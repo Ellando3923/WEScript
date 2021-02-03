@@ -800,7 +800,7 @@ namespace DeadByDaylight
                                             Vector2 vScreen_d3d11 = new Vector2(0, 0);
                                             if (Renderer.WorldToScreenUE4(tempVec, out vScreen_d3d11, FMinimalViewInfo_Location, FMinimalViewInfo_Rotation, FMinimalViewInfo_FOV, wndMargins, wndSize))
                                             {
-                                                if(Hatchstate == 2)
+                                                
                                                 Renderer.DrawText("HATCH [" + dist + "m]", vScreen_d3d11, Components.VisualsComponent.MiscColor.Color, 12, TextAlignment.centered, false);
                                             }
                                         }
