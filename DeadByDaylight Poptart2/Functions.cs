@@ -17,6 +17,20 @@ namespace DeadByDaylight
 
             if (Program.GWorldPtr != IntPtr.Zero)
             {
+                var gameState = Memory.ZwReadPointer(Program.processHandle, (IntPtr)(Program.GWorldPtr.ToInt64() + Offsets.UE.UWorld.gameState), true);
+                var _meatHooks = Memory.ZwReadPointer(Program.processHandle, (IntPtr)(gameState.ToInt64() + Offsets.UE.GameState._meatHooks), true);
+                var _baseTraps = Memory.ZwReadPointer(Program.processHandle, (IntPtr)(gameState.ToInt64() + Offsets.UE.GameState._baseTraps), true);
+                var _escapeDoors = Memory.ZwReadPointer(Program.processHandle, (IntPtr)(gameState.ToInt64() + Offsets.UE.GameState._escapeDoors), true);
+                var _generators = Memory.ZwReadPointer(Program.processHandle, (IntPtr)(gameState.ToInt64() + Offsets.UE.GameState._generators), true);
+                var _hatches = Memory.ZwReadPointer(Program.processHandle, (IntPtr)(gameState.ToInt64() + Offsets.UE.GameState._hatches), true);
+                var _lockers = Memory.ZwReadPointer(Program.processHandle, (IntPtr)(gameState.ToInt64() + Offsets.UE.GameState._lockers), true);
+                var _pallets = Memory.ZwReadPointer(Program.processHandle, (IntPtr)(gameState.ToInt64() + Offsets.UE.GameState._pallets), true);
+                var _searchables = Memory.ZwReadPointer(Program.processHandle, (IntPtr)(gameState.ToInt64() + Offsets.UE.GameState._searchables), true);
+                var _totems = Memory.ZwReadPointer(Program.processHandle, (IntPtr)(gameState.ToInt64() + Offsets.UE.GameState._totems), true);
+                var _windows = Memory.ZwReadPointer(Program.processHandle, (IntPtr)(gameState.ToInt64() + Offsets.UE.GameState._windows), true);
+
+                
+
                 var UGameInstance = Memory.ZwReadPointer(Program.processHandle, (IntPtr)(Program.GWorldPtr.ToInt64() + Offsets.UE.UWorld.OwningGameInstance), true);
                 if (UGameInstance != IntPtr.Zero)
                 {
@@ -70,6 +84,7 @@ namespace DeadByDaylight
 
 
                 }
+
             }
         }
     }
