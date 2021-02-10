@@ -162,7 +162,7 @@ namespace DeadByDaylight
 
             public class UPlayerInteractionHandler
             {
-                public static Int64 _skillCheck = 0x02B8;
+                public static Int64 _skillCheck = 0x02C8;
                 public static UInt32 _currentHealthStateCount = 0x018C;
             }
 
@@ -248,7 +248,7 @@ namespace DeadByDaylight
             {
                 public static Int64 TransformComponent = 0x238; // public class USceneComponent*
                 public static Int64 CameraCachePrivate = 0x1A70; // struct FCameraCacheEntry
-                public static Int64 CurrentFov = 0x1A98; // float
+                public static Int64 CurrentFov = 0x024C; // float
                 public static Int64 AnimCameraActor = 0x2698; // public class ACameraActor*
             }
 
