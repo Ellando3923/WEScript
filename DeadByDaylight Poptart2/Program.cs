@@ -759,7 +759,7 @@ namespace DeadByDaylight
                                             if (Renderer.WorldToScreenUE4(tempVec, out vScreen_d3d11, FMinimalViewInfo_Location, FMinimalViewInfo_Rotation, FMinimalViewInfo_FOV, wndMargins, wndSize))
                                             {
                                                 if (HasBeenSearched == false)
-                                                    Renderer.DrawText(" Chest [" + n2 + dist + "m]", vScreen_d3d11, Color.Purple, 12, TextAlignment.centered, false);
+                                                    Renderer.DrawText(" Chest [" + dist + "m]", vScreen_d3d11, Color.Purple, 12, TextAlignment.centered, false);
                                             }
                                         }
 
