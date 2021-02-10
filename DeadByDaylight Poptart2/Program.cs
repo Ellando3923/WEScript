@@ -364,7 +364,7 @@ namespace DeadByDaylight
 
         static void Main(string[] args)
         {
-            Console.WriteLine("WeScript.app experimental DBD assembly for patch 4.5.0 with Driver bypass");
+            Console.WriteLine("WeScript.app experimental DBD assembly for patch 4.0.2 with Driver bypass");
             InitializeMenu();
             if (!Memory.InitDriver(DriverName.nsiproxy))
             {
@@ -707,7 +707,7 @@ namespace DeadByDaylight
                                     {
                                         if (AActorID == Hook)
                                         {
-                                            var IsInBasement = Memory.ZwReadBool(processHandle, (IntPtr)AActor.ToInt64() + 0x02F0);
+                                            var IsInBasement = Memory.ZwReadBool(processHandle, (IntPtr)AActor.ToInt64() + 0x0308);
 
                                             Vector2 vScreen_d3d11 = new Vector2(0, 0);
                                             if (Renderer.WorldToScreenUE4(tempVec, out vScreen_d3d11, FMinimalViewInfo_Location, FMinimalViewInfo_Rotation, FMinimalViewInfo_FOV, wndMargins, wndSize))
@@ -734,7 +734,7 @@ namespace DeadByDaylight
                                     {
                                         if (AActorID == Pallet)
                                         {
-                                            var state = Memory.ZwReadByte(processHandle, (IntPtr)AActor.ToInt64() + 0x02F4);
+                                            var state = Memory.ZwReadByte(processHandle, (IntPtr)AActor.ToInt64() + 0x02DC);
 
 
                                             Vector2 vScreen_d3d11bb = new Vector2(0, 0);
@@ -752,7 +752,7 @@ namespace DeadByDaylight
                                     {
                                         if (AActorID == Chest)
                                         {
-                                            var HasBeenSearched = Memory.ZwReadBool(processHandle, (IntPtr)AActor.ToInt64() + 0x02F4);
+                                            var HasBeenSearched = Memory.ZwReadBool(processHandle, (IntPtr)AActor.ToInt64() + 0x030C);
                                             
 
                                             Vector2 vScreen_d3d11 = new Vector2(0, 0);
@@ -769,7 +769,7 @@ namespace DeadByDaylight
                                     {
                                         if (AActorID == Trap)
                                         {
-                                            var IsTrapSet = Memory.ZwReadBool(processHandle, (IntPtr)AActor.ToInt64() + 0x0408);
+                                            var IsTrapSet = Memory.ZwReadBool(processHandle, (IntPtr)AActor.ToInt64() + 0x0420);
 
                                             Vector2 vScreen_d3d11 = new Vector2(0, 0);
                                             if (Renderer.WorldToScreenUE4(tempVec, out vScreen_d3d11, FMinimalViewInfo_Location, FMinimalViewInfo_Rotation, FMinimalViewInfo_FOV, wndMargins, wndSize))
@@ -788,8 +788,8 @@ namespace DeadByDaylight
                                         if (AActorID == totemID)
                                         {
 
-                                            var IsCleansed = Memory.ZwReadBool(processHandle, (IntPtr)AActor.ToInt64() + 0x02D4);
-                                            var HexID = Memory.ZwReadUInt32(processHandle, (IntPtr)(AActor.ToInt64() + 0x02C8));
+                                            var IsCleansed = Memory.ZwReadBool(processHandle, (IntPtr)AActor.ToInt64() + 0x02EC);
+                                            var HexID = Memory.ZwReadUInt32(processHandle, (IntPtr)(AActor.ToInt64() + 0x02E0));
                                             var HexID2 = GetNameFromID(HexID);
 
                                             Vector2 vScreen_d3d11 = new Vector2(0, 0);
@@ -802,11 +802,11 @@ namespace DeadByDaylight
 
                                         else if (AActorID == hatchID)
                                         {
-                                            var Hatchstate = Memory.ZwReadByte(processHandle, (IntPtr)AActor.ToInt64() + 0x02E8);
+                                            //var Hatchstate = Memory.ZwReadByte(processHandle, (IntPtr)AActor.ToInt64() + 0x02E8);
                                             Vector2 vScreen_d3d11 = new Vector2(0, 0);
                                             if (Renderer.WorldToScreenUE4(tempVec, out vScreen_d3d11, FMinimalViewInfo_Location, FMinimalViewInfo_Rotation, FMinimalViewInfo_FOV, wndMargins, wndSize))
                                             {
-                                                if(Hatchstate == 2)
+                                                
                                                 Renderer.DrawText("HATCH [" + dist + "m]", vScreen_d3d11, Components.VisualsComponent.MiscColor.Color, 12, TextAlignment.centered, false);
                                             }
                                         }
