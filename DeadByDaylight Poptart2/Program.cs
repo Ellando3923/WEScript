@@ -252,13 +252,13 @@ namespace DeadByDaylight
             if (USkillCheck != IntPtr.Zero)
             {
 
-                var isDisplayed = Memory.ZwReadBool(processHandle, (IntPtr)USkillCheck.ToInt64() + 0x027C);
+                var isDisplayed = Memory.ZwReadBool(processHandle, (IntPtr)USkillCheck.ToInt64() + 0x02A8);
                 if (isDisplayed)
                 {
                     var currentProgress = Memory.ZwReadFloat(processHandle,
-                        (IntPtr)USkillCheck.ToInt64() + 0x022C); //0x02A0
+                        (IntPtr)USkillCheck.ToInt64() + 0x0248); //0x02A0
                     var startSuccessZone = Memory.ZwReadFloat(processHandle,
-                        (IntPtr)USkillCheck.ToInt64() + 0x0264);
+                        (IntPtr)USkillCheck.ToInt64() + 0x0290);
 
                     if (currentProgress > startSuccessZone)
                     {
@@ -322,13 +322,13 @@ namespace DeadByDaylight
 
         public static void SigScan()
         {
-            //GWorldPtr = Memory.ZwFindSignature(processHandle, GameBase, GameSize, "48 89 05 ? ? ? ? 0F 28 D7", 0x3); 4.2
-            GWorldPtr = Memory.ZwReadPointer(processHandle, GameBase + 0x8027F90, isWow64Process);
+            //GWorldPtr = Memory.ZwFindSignature(processHandle, GameBase, GameSize, "48 89 05 ? ? ? ? 0F 28 D7", 0x3); //4.2
+            GWorldPtr = Memory.ZwReadPointer(processHandle, GameBase + 0x8462380, isWow64Process);
             //Console.WriteLine($"GWorldPtr: {GWorldPtr.ToString("X")}");
 
-            GNamesPtr = GameBase + 0x7E59680;
+            GNamesPtr = GameBase + 0x8293A80;
 
-            //GNamesPtr = Memory.ZwFindSignature(processHandle, GameBase, GameSize, "48 8D 1D ? ? ? ? EB 16 48 8D 0D", 0x3); 4.2
+            //GNamesPtr = Memory.ZwFindSignature(processHandle, GameBase, GameSize, "48 8D 1D ? ? ? ? EB 16 48 8D 0D", 0x3);// 4.2
             //Console.WriteLine($"GNamesPtr: {GNamesPtr.ToString("X")}");
         }
 
@@ -395,6 +395,9 @@ namespace DeadByDaylight
                     if (GameBase == IntPtr.Zero) GameBase = Memory.ZwGetModule(processHandle, null, isWow64Process);
                     if (GameBase != IntPtr.Zero)
                     {
+                        //bool EscapeDoorActivated = Memory.ZwReadBool(processHandle, GameBase + 0x2b1f660);
+                        //UInt32 ActivatedGeneratorCount = Memory.ZwReadUInt32(processHandle, GameBase + 0x2b20080);
+                        //Console.WriteLine(EscapeDoorActivated + "" + ActivatedGeneratorCount);
                         //Console.WriteLine(GameBase.ToString("X"));
                         GameSize = Memory.ZwGetModuleSize(processHandle, null, isWow64Process);
                         if (GWorldPtr == IntPtr.Zero && GNamesPtr == IntPtr.Zero) SigScan();
@@ -447,6 +450,8 @@ namespace DeadByDaylight
             var n1 = GetNameFromID(itemId);
             var n2 = GetNameFromID(_itemIdToSpawn);
 
+            //var FOV = Memory.ZwReadFloat(processHandle, (IntPtr)(Ucollectable.ToInt64() + 0x02D0));
+
 
             var ULevel = Memory.ZwReadPointer(processHandle, GWorldPtr + 0x38, isWow64Process);
             if (ULevel != IntPtr.Zero)
@@ -462,6 +467,7 @@ namespace DeadByDaylight
                             isWow64Process);
                         if (AActor != IntPtr.Zero)
                         {
+                            //Console.WriteLine(AActor.ToString("X"));
                             //var Health = Memory.ZwReadUInt32(processHandle, (IntPtr)AActor.ToInt64() + Offsets.UE.AActor.Health);
                             var AActorID = Memory.ZwReadUInt32(processHandle, (IntPtr)AActor.ToInt64() + 0x18);
                             if (!CachedID.ContainsKey(AActorID))
@@ -566,7 +572,7 @@ namespace DeadByDaylight
                                                 AimTarg2D = vScreen_h3adSurvivor;
 
 
-                                                if (Components.AimbotComponentKiller.AimKey.Enabled && Components.AimbotComponentKiller.AimGlobalBool.Enabled && dist <= 30)
+                                                if (Components.AimbotComponentKiller.AimKey.Enabled && Components.AimbotComponentKiller.AimGlobalBool.Enabled && dist <= 50)
                                                 {
 
                                                     double DistX = 0;
@@ -800,7 +806,7 @@ namespace DeadByDaylight
                                             Vector2 vScreen_d3d11 = new Vector2(0, 0);
                                             if (Renderer.WorldToScreenUE4(tempVec, out vScreen_d3d11, FMinimalViewInfo_Location, FMinimalViewInfo_Rotation, FMinimalViewInfo_FOV, wndMargins, wndSize))
                                             {
-                                                
+                                                if(Hatchstate == 2)
                                                 Renderer.DrawText("HATCH [" + dist + "m]", vScreen_d3d11, Components.VisualsComponent.MiscColor.Color, 12, TextAlignment.centered, false);
                                             }
                                         }
@@ -812,11 +818,11 @@ namespace DeadByDaylight
                                     {
                                         if (AActorID != generatorID)
                                             continue;
-                                        var isRepaired = Memory.ZwReadBool(processHandle, (IntPtr)AActor.ToInt64() + 0x02C9);
-                                        var isBlocked = Memory.ZwReadBool(processHandle, (IntPtr)AActor.ToInt64() + 0x038C);
+                                        var isRepaired = Memory.ZwReadBool(processHandle, (IntPtr)AActor.ToInt64() + 0x02E1);
+                                        var isBlocked = Memory.ZwReadBool(processHandle, (IntPtr)AActor.ToInt64() + 0x03A4);
 
 
-                                        var currentProgressPercent = Memory.ZwReadFloat(processHandle, (IntPtr)AActor.ToInt64() + 0x02D8) * 100;
+                                        var currentProgressPercent = Memory.ZwReadFloat(processHandle, (IntPtr)AActor.ToInt64() + 0x02F0) * 100;
                                         Color selectedColor;
                                         if (isBlocked)
                                             selectedColor = Color.Red;
