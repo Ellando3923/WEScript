@@ -364,7 +364,7 @@ namespace DeadByDaylight
 
         static void Main(string[] args)
         {
-            Console.WriteLine("WeScript.app experimental DBD assembly for patch 4.0.2 with Driver bypass");
+            Console.WriteLine("WeScript.app experimental DBD assembly for patch 4.5.0 with Driver bypass");
             InitializeMenu();
             if (!Memory.InitDriver(DriverName.nsiproxy))
             {
