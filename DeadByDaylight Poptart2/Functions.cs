@@ -60,6 +60,7 @@ namespace DeadByDaylight
                                     if (UInteractionHandler != IntPtr.Zero)
                                     {
                                         USkillCheck = Memory.ZwReadPointer(Program.processHandle, (IntPtr)(UInteractionHandler.ToInt64() + Offsets.UE.UPlayerInteractionHandler._skillCheck), true);
+                                        Console.WriteLine(USkillCheck.ToString("X"));
                                         _currentHealthStateCount = Memory.ZwReadUInt32(Program.processHandle, (IntPtr)(UInteractionHandler.ToInt64() + Offsets.UE.UPlayerInteractionHandler._currentHealthStateCount));
                                     }
 
