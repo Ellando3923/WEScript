@@ -134,6 +134,7 @@ namespace DeadByDaylight
             public static class MiscComponent
             {
                 public static readonly MenuBool AutoSkillCheck = new MenuBool("autoskillcheck", "Auto Skill Check (+Bonus)", true);
+                public static readonly MenuBool SkinUnlock = new MenuBool("skins", "AllSkins", false);
             }
         }
 
@@ -193,7 +194,8 @@ namespace DeadByDaylight
 
             MiscMenu = new Menu("miscmenu", "Misc Menu")
             {
-                Components.MiscComponent.AutoSkillCheck
+                Components.MiscComponent.AutoSkillCheck,
+                Components.MiscComponent.SkinUnlock
             };
 
 
@@ -266,6 +268,12 @@ namespace DeadByDaylight
                     }
                 }
             }
+        }
+
+        public static void SkinUnlocker()
+        {
+            var Address = Memory.ZwReadInt64(processHandle, GameBase + 0x7E62CF8);
+            Memory.ZwWriteBool(processHandle, (IntPtr)Address, true);
         }
 
         public static void WiggleKey()
@@ -438,6 +446,11 @@ namespace DeadByDaylight
             if (Components.MiscComponent.AutoSkillCheck.Enabled)
             {
                 AutoSkillCheck(USkillCheck);
+            }
+
+            if(Components.MiscComponent.SkinUnlock.Enabled)
+            {
+                SkinUnlocker();
             }
 
             var gameState = Memory.ZwReadPointer(processHandle, (IntPtr)(GWorldPtr.ToInt64() + Offsets.UE.UWorld.gameState), true);
